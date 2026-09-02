@@ -1,0 +1,585 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		08F0C0D587DC502632FF272C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3E73A050F18FD08A01366262 /* Main.storyboard */; };
+		16ED52BFCFE876869BC86004 /* WalkCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE4382F270B987C38E3E0B39 /* WalkCompleteView.swift */; };
+		22872737B2C9A83AA501A5D7 /* AppStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 230DCCA4FD279258ABF6B45D /* AppStorage.swift */; };
+		3B732B09A6AC2C5115841D38 /* WalkModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A01938D313F3F212768D53E2 /* WalkModels.swift */; };
+		3D91F6A02C8E4B77B104E9AA /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E21A47C9B3D4F12A881C055 /* StatsView.swift */; };
+		4EB29A5304901C64CFEE2AA0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6975010487EE0CFD18771305 /* AppDelegate.swift */; };
+		525E5A88C446DE4DE0FF5062 /* ScreenBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538F06B30FC2C6122C5F2B0C /* ScreenBackground.swift */; };
+		52CA529F1D6DFCE7F4C8CCE7 /* AppLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD5BFDBD38D389C2B071D0FF /* AppLinks.swift */; };
+		583E07E9A03DFB4C19A7D031 /* InsightsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74189CDAE82685E4EB00040E /* InsightsListView.swift */; };
+		808012BF5C114C2B09430C7B /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97DF3F90A740CCDEF866BFCF /* AppTheme.swift */; };
+		8A5A4D765B01A252C24C3179 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CACAD23E1F3A4845DC4D102 /* SettingsView.swift */; };
+		8B2C3D4E5F60718293A4B5C6 /* WeeklyReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1B2C3D4E5F60718293A4B5 /* WeeklyReviewView.swift */; };
+		9559D5711A50C46B5D30F405 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DDE3353744E42514DE767B39 /* LaunchScreen.storyboard */; };
+		AD4E5F60718293A4B5C6D7E8 /* WalkReminder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C3D4E5F60718293A4B5C6D7 /* WalkReminder.swift */; };
+		B22C33D44E55F66A77B88001 /* BreathPrepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B22C33D44E55F66A77B88 /* BreathPrepView.swift */; };
+		B9AE70E2AF60265D4631E2F4 /* WalkTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B896C0E98650FAD76828D3C4 /* WalkTimerView.swift */; };
+		C20025DC42A07C41BB840EFC /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3851D098A79DDB8A59FD37B6 /* PrivacyInfo.xcprivacy */; };
+		C3C9C95F518FEFCE39BF7B23 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B3A8CE13CDC07305E8317E9 /* SceneDelegate.swift */; };
+		C87C968403C45039E5E135BC /* WalkHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B34018F14B5201BB004DA88 /* WalkHistoryView.swift */; };
+		D44E55F66A77B88012233440 /* DurationPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33D44E55F66A77B88012230 /* DurationPickerView.swift */; };
+		D86D0F908DAFBB45789910D6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5FCF9B87C823613D97D335A9 /* Assets.xcassets */; };
+		DC338B7EE98477352647DA56 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AB12B555D17159CAF422D7 /* ContentView.swift */; };
+		F66A77B88012233445566780 /* ProgramsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E55F66A77B88012233445560 /* ProgramsView.swift */; };
+		F79750A9C9F2CB777B6A2DAF /* PetalCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 059A6439D6AB695974779C3A /* PetalCard.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		059A6439D6AB695974779C3A /* PetalCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetalCard.swift; sourceTree = "<group>"; };
+		131366D1FFDDEDAB45AEE59A /* Pods-VyvoriCalmHub.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VyvoriCalmHub.release.xcconfig"; path = "Target Support Files/Pods-VyvoriCalmHub/Pods-VyvoriCalmHub.release.xcconfig"; sourceTree = "<group>"; };
+		1CACAD23E1F3A4845DC4D102 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		230DCCA4FD279258ABF6B45D /* AppStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorage.swift; sourceTree = "<group>"; };
+		3851D098A79DDB8A59FD37B6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		3E73A050F18FD08A01366262 /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		426FE665C5692B2A4C6D30CC /* Pods-VyvoriCalmHub.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VyvoriCalmHub.debug.xcconfig"; path = "Target Support Files/Pods-VyvoriCalmHub/Pods-VyvoriCalmHub.debug.xcconfig"; sourceTree = "<group>"; };
+		538F06B30FC2C6122C5F2B0C /* ScreenBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenBackground.swift; sourceTree = "<group>"; };
+		5B3A8CE13CDC07305E8317E9 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		5FCF9B87C823613D97D335A9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6975010487EE0CFD18771305 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		74189CDAE82685E4EB00040E /* InsightsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsListView.swift; sourceTree = "<group>"; };
+		7A1B2C3D4E5F60718293A4B5 /* WeeklyReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyReviewView.swift; sourceTree = "<group>"; };
+		84AB12B555D17159CAF422D7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		8E21A47C9B3D4F12A881C055 /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
+		97DF3F90A740CCDEF866BFCF /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		9B34018F14B5201BB004DA88 /* WalkHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalkHistoryView.swift; sourceTree = "<group>"; };
+		9C3D4E5F60718293A4B5C6D7 /* WalkReminder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalkReminder.swift; sourceTree = "<group>"; };
+		A01938D313F3F212768D53E2 /* WalkModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalkModels.swift; sourceTree = "<group>"; };
+		A11B22C33D44E55F66A77B88 /* BreathPrepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreathPrepView.swift; sourceTree = "<group>"; };
+		AE4382F270B987C38E3E0B39 /* WalkCompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalkCompleteView.swift; sourceTree = "<group>"; };
+		B896C0E98650FAD76828D3C4 /* WalkTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalkTimerView.swift; sourceTree = "<group>"; };
+		C31BCBC2F0B50E02E681F9F5 /* Pods_VyvoriCalmHub.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VyvoriCalmHub.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C33D44E55F66A77B88012230 /* DurationPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationPickerView.swift; sourceTree = "<group>"; };
+		D722B602EBAC662538DA07E2 /* VyvoriCalmHub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VyvoriCalmHub.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DD5BFDBD38D389C2B071D0FF /* AppLinks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLinks.swift; sourceTree = "<group>"; };
+		DDE3353744E42514DE767B39 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		E55F66A77B88012233445560 /* ProgramsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgramsView.swift; sourceTree = "<group>"; };
+		FF57694A12BD06822960B56E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		269FB5FAE0D8446D183BF7B4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1B94A7F9A6C46B5E45AFFEA3 /* Walk */ = {
+			isa = PBXGroup;
+			children = (
+				AE4382F270B987C38E3E0B39 /* WalkCompleteView.swift */,
+				B896C0E98650FAD76828D3C4 /* WalkTimerView.swift */,
+				A11B22C33D44E55F66A77B88 /* BreathPrepView.swift */,
+				C33D44E55F66A77B88012230 /* DurationPickerView.swift */,
+			);
+			path = Walk;
+			sourceTree = "<group>";
+		};
+		1E2F3A4B5C6D7E8F901A2B3C /* Programs */ = {
+			isa = PBXGroup;
+			children = (
+				E55F66A77B88012233445560 /* ProgramsView.swift */,
+			);
+			path = Programs;
+			sourceTree = "<group>";
+		};
+		2F3A4B5C6D7E8F901A2B3C4D /* Review */ = {
+			isa = PBXGroup;
+			children = (
+				7A1B2C3D4E5F60718293A4B5 /* WeeklyReviewView.swift */,
+			);
+			path = Review;
+			sourceTree = "<group>";
+		};
+		47267D2E8A99323317BAA2E2 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				5FCF9B87C823613D97D335A9 /* Assets.xcassets */,
+				3851D098A79DDB8A59FD37B6 /* PrivacyInfo.xcprivacy */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		5A0AA107977BA28F226001C8 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				059A6439D6AB695974779C3A /* PetalCard.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		6A33084B1FE7AF9733A6C3E4 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				84AB12B555D17159CAF422D7 /* ContentView.swift */,
+				DF97BC80B031FBD86E4AFE38 /* History */,
+				78F4E949591DAA845DEEA3DA /* Insights */,
+				1E2F3A4B5C6D7E8F901A2B3C /* Programs */,
+				2F3A4B5C6D7E8F901A2B3C4D /* Review */,
+				C71730CA8A3B2155B9F4072F /* Settings */,
+				6F44D0B18A2C4E90C773D1BE /* Stats */,
+				1B94A7F9A6C46B5E45AFFEA3 /* Walk */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		6F44D0B18A2C4E90C773D1BE /* Stats */ = {
+			isa = PBXGroup;
+			children = (
+				8E21A47C9B3D4F12A881C055 /* StatsView.swift */,
+			);
+			path = Stats;
+			sourceTree = "<group>";
+		};
+		764D4DF6CFA6F8CA540718B5 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				6975010487EE0CFD18771305 /* AppDelegate.swift */,
+				FF57694A12BD06822960B56E /* Info.plist */,
+				DDE3353744E42514DE767B39 /* LaunchScreen.storyboard */,
+				3E73A050F18FD08A01366262 /* Main.storyboard */,
+				5B3A8CE13CDC07305E8317E9 /* SceneDelegate.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		78F4E949591DAA845DEEA3DA /* Insights */ = {
+			isa = PBXGroup;
+			children = (
+				74189CDAE82685E4EB00040E /* InsightsListView.swift */,
+			);
+			path = Insights;
+			sourceTree = "<group>";
+		};
+		7C0BEC6AE512A797822FA55D /* VyvoriCalmHub */ = {
+			isa = PBXGroup;
+			children = (
+				764D4DF6CFA6F8CA540718B5 /* App */,
+				5A0AA107977BA28F226001C8 /* Components */,
+				E50F19AA9C035A80237C2F5F /* Models */,
+				9065ADFE0808316D9EE6A986 /* Persistence */,
+				47267D2E8A99323317BAA2E2 /* Resources */,
+				A6011B323B392AECA27F7923 /* Theme */,
+				CC34364EAF53F943291E800F /* Utilities */,
+				6A33084B1FE7AF9733A6C3E4 /* Views */,
+			);
+			path = VyvoriCalmHub;
+			sourceTree = "<group>";
+		};
+		9065ADFE0808316D9EE6A986 /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				230DCCA4FD279258ABF6B45D /* AppStorage.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		A6011B323B392AECA27F7923 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				97DF3F90A740CCDEF866BFCF /* AppTheme.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		B15FB18051578299724C920C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C31BCBC2F0B50E02E681F9F5 /* Pods_VyvoriCalmHub.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B87EF8B044F58ED1911F5BBD /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				426FE665C5692B2A4C6D30CC /* Pods-VyvoriCalmHub.debug.xcconfig */,
+				131366D1FFDDEDAB45AEE59A /* Pods-VyvoriCalmHub.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		C0170D3114A63A5285504DC0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D722B602EBAC662538DA07E2 /* VyvoriCalmHub.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C71730CA8A3B2155B9F4072F /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				1CACAD23E1F3A4845DC4D102 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		CC34364EAF53F943291E800F /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				DD5BFDBD38D389C2B071D0FF /* AppLinks.swift */,
+				538F06B30FC2C6122C5F2B0C /* ScreenBackground.swift */,
+				9C3D4E5F60718293A4B5C6D7 /* WalkReminder.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		DF97BC80B031FBD86E4AFE38 /* History */ = {
+			isa = PBXGroup;
+			children = (
+				9B34018F14B5201BB004DA88 /* WalkHistoryView.swift */,
+			);
+			path = History;
+			sourceTree = "<group>";
+		};
+		E50F19AA9C035A80237C2F5F /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A01938D313F3F212768D53E2 /* WalkModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		EB57114DA2B3DE98001D73F4 = {
+			isa = PBXGroup;
+			children = (
+				7C0BEC6AE512A797822FA55D /* VyvoriCalmHub */,
+				C0170D3114A63A5285504DC0 /* Products */,
+				B87EF8B044F58ED1911F5BBD /* Pods */,
+				B15FB18051578299724C920C /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3BF5B3BB818307E337B06635 /* VyvoriCalmHub */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B8AB3BA70D49CC287BEDE084 /* Build configuration list for PBXNativeTarget "VyvoriCalmHub" */;
+			buildPhases = (
+				DE0481C79E3A5B323B0C0163 /* [CP] Check Pods Manifest.lock */,
+				B5EB65343206BAE97D560FEB /* Sources */,
+				269FB5FAE0D8446D183BF7B4 /* Frameworks */,
+				A4A50B9EF67D4A02A793A393 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VyvoriCalmHub;
+			productName = VyvoriCalmHub;
+			productReference = D722B602EBAC662538DA07E2 /* VyvoriCalmHub.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6921994421C4A19B38FA16D0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					3BF5B3BB818307E337B06635 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = F2A706CED5066A8C904617EA /* Build configuration list for PBXProject "VyvoriCalmHub" */;
+			compatibilityVersion = "Xcode 15.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = EB57114DA2B3DE98001D73F4;
+			productRefGroup = C0170D3114A63A5285504DC0 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3BF5B3BB818307E337B06635 /* VyvoriCalmHub */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A4A50B9EF67D4A02A793A393 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9559D5711A50C46B5D30F405 /* LaunchScreen.storyboard in Resources */,
+				08F0C0D587DC502632FF272C /* Main.storyboard in Resources */,
+				D86D0F908DAFBB45789910D6 /* Assets.xcassets in Resources */,
+				C20025DC42A07C41BB840EFC /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		DE0481C79E3A5B323B0C0163 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-VyvoriCalmHub-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B5EB65343206BAE97D560FEB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4EB29A5304901C64CFEE2AA0 /* AppDelegate.swift in Sources */,
+				C3C9C95F518FEFCE39BF7B23 /* SceneDelegate.swift in Sources */,
+				F79750A9C9F2CB777B6A2DAF /* PetalCard.swift in Sources */,
+				3B732B09A6AC2C5115841D38 /* WalkModels.swift in Sources */,
+				22872737B2C9A83AA501A5D7 /* AppStorage.swift in Sources */,
+				808012BF5C114C2B09430C7B /* AppTheme.swift in Sources */,
+				52CA529F1D6DFCE7F4C8CCE7 /* AppLinks.swift in Sources */,
+				525E5A88C446DE4DE0FF5062 /* ScreenBackground.swift in Sources */,
+				DC338B7EE98477352647DA56 /* ContentView.swift in Sources */,
+				C87C968403C45039E5E135BC /* WalkHistoryView.swift in Sources */,
+				583E07E9A03DFB4C19A7D031 /* InsightsListView.swift in Sources */,
+				8A5A4D765B01A252C24C3179 /* SettingsView.swift in Sources */,
+				16ED52BFCFE876869BC86004 /* WalkCompleteView.swift in Sources */,
+				B9AE70E2AF60265D4631E2F4 /* WalkTimerView.swift in Sources */,
+				3D91F6A02C8E4B77B104E9AA /* StatsView.swift in Sources */,
+				B22C33D44E55F66A77B88001 /* BreathPrepView.swift in Sources */,
+				D44E55F66A77B88012233440 /* DurationPickerView.swift in Sources */,
+				F66A77B88012233445566780 /* ProgramsView.swift in Sources */,
+				8B2C3D4E5F60718293A4B5C6 /* WeeklyReviewView.swift in Sources */,
+				AD4E5F60718293A4B5C6D7E8 /* WalkReminder.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		12ECEB9CF87258C6CF75961D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		2851A89DD8337D4022CCF232 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		3988EEC512ADEAFB3C64174F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 426FE665C5692B2A4C6D30CC /* Pods-VyvoriCalmHub.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VyvoriCalmHub/App/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Vyvori Calm Hub";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kal.vyv0r1c9lmh7b;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		3DD1E59F91564DF86112065D /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 131366D1FFDDEDAB45AEE59A /* Pods-VyvoriCalmHub.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VyvoriCalmHub/App/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Vyvori Calm Hub";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kal.vyv0r1c9lmh7b;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B8AB3BA70D49CC287BEDE084 /* Build configuration list for PBXNativeTarget "VyvoriCalmHub" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3988EEC512ADEAFB3C64174F /* Debug */,
+				3DD1E59F91564DF86112065D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F2A706CED5066A8C904617EA /* Build configuration list for PBXProject "VyvoriCalmHub" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2851A89DD8337D4022CCF232 /* Debug */,
+				12ECEB9CF87258C6CF75961D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6921994421C4A19B38FA16D0 /* Project object */;
+}
