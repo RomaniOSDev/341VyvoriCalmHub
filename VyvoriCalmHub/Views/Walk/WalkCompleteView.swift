@@ -1,15 +1,15 @@
 import SwiftUI
 
-struct WalkCompleteView: View {
+struct RouteCompleteView: View {
     @EnvironmentObject private var store: AppDataStore
     @Environment(\.dismiss) private var dismiss
     let walkId: UUID
-    let minutes: Int
-    let location: String
     @Binding var sessionPresented: Bool
-    @State private var text = ""
-    @State private var mood = "Calm"
-    @State private var error: String?
+    @State private var closing = ""
+
+    private var walk: RouteWalk? {
+        store.walks.first { $0.id == walkId }
+    }
 
     var body: some View {
         ScrollView {
@@ -23,53 +23,57 @@ struct WalkCompleteView: View {
 
                 PetalCard(cut: 2) {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("What stayed with you?")
+                        Text("Path complete")
                             .font(AppTheme.display(26))
-                        Text("\(minutes) minutes · \(location.isEmpty ? "No place noted" : location)")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        Picker("Mood", selection: $mood) {
-                            Text("Calm").tag("Calm")
-                            Text("Clear").tag("Clear")
-                            Text("Heavy").tag("Heavy")
-                            Text("Curious").tag("Curious")
+                        if let walk {
+                            Text("\(walk.routeTitle) · \(walk.checkIns.count) landings")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            PathMapTrail(
+                                titles: walk.checkIns.map { "\($0.stopName) · \($0.ritual.title)" },
+                                doneCount: walk.checkIns.count
+                            )
                         }
-                        .pickerStyle(.segmented)
-                        TextEditor(text: $text)
-                            .frame(minHeight: 120)
+                    }
+                }
+
+                PetalCard {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("A closing line (optional)")
+                            .font(.system(.headline, design: .serif))
+                        TextEditor(text: $closing)
+                            .frame(minHeight: 100)
                             .padding(8)
-                        .background(Color.white.opacity(0.55), in: AppTheme.stoneShape(0))
-                        if let error {
-                            Text(error).font(.caption).foregroundColor(.red)
+                            .background(Color.white.opacity(0.55), in: AppTheme.stoneShape(0))
+                        ForEach(walk?.checkIns.filter { !$0.body.isEmpty } ?? []) { item in
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(item.stopName)
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundColor(AppTheme.primary)
+                                Text(item.body)
+                                    .font(.subheadline)
+                            }
                         }
-                        PetalButton(title: "Save reflection", systemImage: "leaf.fill") {
+                        PetalButton(title: "Save this path", systemImage: "leaf.fill") {
                             save()
                         }
                         .accessibilityIdentifier("save_insight")
                     }
                 }
             }
-            .padding(18)
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            .padding(.bottom, 28)
         }
+        .clearScrollBackground()
         .screenBackdrop("BgTrail")
-        .navigationTitle("Insight")
+        .navigationTitle("Landed")
         .navigationBarBackButtonHidden(true)
+        .onAppear { closing = walk?.closingLine ?? "" }
     }
 
     private func save() {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmed.isEmpty {
-            error = "Write at least one character."
-            return
-        }
-        let insight = Insight(id: UUID(), date: Date(), text: trimmed, walkId: walkId, mood: mood)
-        store.upsertInsight(insight)
-        if var walk = store.walks.first(where: { $0.id == walkId }) {
-            walk.reflection = trimmed
-            walk.location = location
-            walk.completed = true
-            store.upsertWalk(walk)
-        }
+        store.finishWalk(walkId: walkId, closingLine: closing)
         UIImpactFeedbackGenerator(style: .soft).impactOccurred()
         sessionPresented = false
         dismiss()

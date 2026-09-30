@@ -3,9 +3,8 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var store = AppDataStore.shared
     @State private var showSettings = false
-    @State private var goTimer = false
-    @State private var goBreath = false
-    @State private var showDuration = false
+    @State private var goWalk = false
+    @State private var walkError: String?
 
     var body: some View {
         NavigationStack {
@@ -24,12 +23,17 @@ struct ContentView: View {
                         .shadow(color: Color.black.opacity(0.22), radius: 14, y: 8)
 
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("A quiet walk")
+                        Text("Walk by stops")
                             .font(AppTheme.display(36))
                             .foregroundColor(.white)
                         Text(store.weeklySummary)
                             .font(.subheadline)
                             .foregroundColor(.white.opacity(0.86))
+                        if !store.focusStopName.isEmpty {
+                            Text("Begin next with: \(store.focusStopName)")
+                                .font(.caption.weight(.semibold))
+                                .foregroundColor(.white.opacity(0.92))
+                        }
                     }
 
                     HStack {
@@ -38,18 +42,32 @@ struct ContentView: View {
                         Spacer()
                     }
 
-                    Button(store.durationLabel) {
-                        showDuration = true
+                    if let route = store.preferredRoute {
+                        PetalCard(cut: 1) {
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text(route.trimmedTitle.isEmpty ? "Untitled path" : route.trimmedTitle)
+                                    .font(.system(.headline, design: .serif))
+                                PathMapTrail(
+                                    titles: route.stops.map { $0.trimmedName.isEmpty ? "Unnamed stop" : $0.trimmedName },
+                                    doneCount: 0,
+                                    highlightIndex: 0
+                                )
+                            }
+                        }
                     }
-                    .font(.system(.subheadline, design: .serif).weight(.semibold))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, minHeight: 44)
 
+                    routePicker
                     trailLinks
+                    if let walkError {
+                        Text(walkError)
+                            .font(.caption)
+                            .foregroundColor(.red)
+                    }
                 }
                 .padding(.horizontal, 18)
                 .padding(.bottom, 28)
             }
+            .clearScrollBackground()
             .screenBackdrop("BgTrail")
             .navigationTitle("Today")
             .toolbar {
@@ -67,18 +85,11 @@ struct ContentView: View {
                     }
                 }
             }
-            .navigationDestination(isPresented: $goTimer) {
-                WalkTimerView(sessionPresented: $goTimer)
-            }
-            .navigationDestination(isPresented: $goBreath) {
-                BreathPrepView(sessionPresented: $goBreath)
+            .navigationDestination(isPresented: $goWalk) {
+                RouteWalkView(sessionPresented: $goWalk)
             }
             .sheet(isPresented: $showSettings) {
                 SettingsView()
-                    .environmentObject(store)
-            }
-            .sheet(isPresented: $showDuration) {
-                DurationPickerView()
                     .environmentObject(store)
             }
         }
@@ -86,23 +97,9 @@ struct ContentView: View {
         .environmentObject(store)
     }
 
-    private var continueSeconds: Int {
-        if store.clock.isLive {
-            return store.clock.isOpenEnded ? store.clock.elapsed : store.clock.remaining
-        }
-        guard let active = store.activeWalk else { return 0 }
-        return active.isOpenEnded ? active.elapsedSeconds : active.remainingSeconds
-    }
-
     private var startControl: some View {
         Button {
-            if store.hasResumableWalk {
-                goTimer = true
-            } else {
-                store.clearLaunchOverrides()
-                store.isWalkTimerShown = false
-                goBreath = true
-            }
+            beginOrResume()
         } label: {
             ZStack {
                 RippleRings(count: 4, base: 126)
@@ -112,13 +109,15 @@ struct ContentView: View {
                     .rotationEffect(.degrees(45))
                     .shadow(color: AppTheme.primary.opacity(0.5), radius: 16, y: 8)
                 VStack(spacing: 4) {
-                    Image(systemName: "figure.walk")
+                    Image(systemName: store.hasResumableWalk ? "arrow.uturn.left" : "figure.walk")
                         .font(.system(size: 30, weight: .medium))
-                    Text(store.hasResumableWalk ? "Continue" : "Begin")
+                    Text(store.hasResumableWalk ? "Continue" : "Walk path")
                         .font(.system(.headline, design: .serif))
-                    if store.hasResumableWalk {
-                        Text(Self.clock(continueSeconds))
-                            .font(.caption.monospacedDigit())
+                    if let active = store.activeWalk, let stop = active.nextStop {
+                        Text("Stop \(active.currentStopIndex + 1) · \(stop.trimmedName)")
+                            .font(.caption)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 16)
                     }
                 }
                 .foregroundColor(.white)
@@ -129,44 +128,85 @@ struct ContentView: View {
         .accessibilityIdentifier("start_walk")
     }
 
+    private var routePicker: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(store.routes) { route in
+                    Button {
+                        store.selectRoute(route.id)
+                    } label: {
+                        Text(route.trimmedTitle.isEmpty ? "Untitled" : route.trimmedTitle)
+                            .font(.caption.weight(.semibold))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 10)
+                            .background(
+                                AppTheme.stoneShape(0)
+                                    .fill(store.selectedRouteId == route.id ? AppTheme.primary.opacity(0.28) : AppTheme.surface.opacity(0.85))
+                            )
+                            .foregroundColor(AppTheme.primary)
+                    }
+                    .frame(minHeight: 44)
+                }
+            }
+        }
+    }
+
     private var trailLinks: some View {
         VStack(spacing: 14) {
             if store.shouldShowSundayReview {
                 NavigationLink {
                     WeeklyReviewView()
                 } label: {
-                    TrailRow(title: "Sunday review", subtitle: "Streak, mood, and what to keep", systemImage: "sun.haze.fill", cut: 0, inset: 0)
+                    TrailRow(title: "Sunday stops", subtitle: "Choose the landing to begin with next week", systemImage: "sun.haze.fill", cut: 0, inset: 0)
                 }
                 .buttonStyle(.plain)
             }
             NavigationLink {
-                ProgramsView()
+                RoutesListView()
             } label: {
-                TrailRow(title: "7-day programs", subtitle: "Evening, morning, or a soft return", systemImage: "calendar", cut: 1, inset: 18)
+                TrailRow(title: "Compose a path", subtitle: store.routes.isEmpty ? "Build 4 to 6 outdoor stops" : "\(store.routes.count) routes", systemImage: "square.and.pencil", cut: 1, inset: 18)
             }
             .buttonStyle(.plain)
             NavigationLink {
-                StatsView()
+                PlacesView()
             } label: {
-                TrailRow(title: "Statistics", subtitle: store.walks.isEmpty ? "Charts of your walks" : "Minutes, streaks, moods", systemImage: "chart.bar.fill", cut: 2, inset: 0)
+                TrailRow(title: "Places", subtitle: store.distinctStopNames.isEmpty ? "Stops you have landed on" : "\(store.distinctStopNames.count) distinct stops", systemImage: "mappin.and.ellipse", cut: 2, inset: 0)
             }
             .buttonStyle(.plain)
             NavigationLink {
-                InsightsListView()
+                CheckInNotesView()
             } label: {
-                TrailRow(title: "Reflections", subtitle: store.insights.isEmpty ? "Start noting your reflections" : "\(store.insights.count) saved", systemImage: "text.quote", cut: 0, inset: 18)
+                TrailRow(title: "Stop notes", subtitle: allNotes.isEmpty ? "Lines left at landings" : "\(allNotes.count) saved", systemImage: "text.quote", cut: 0, inset: 18)
             }
             .buttonStyle(.plain)
             NavigationLink {
-                WalkHistoryView()
+                RitualMapView()
             } label: {
-                TrailRow(title: "Walk journal", subtitle: store.walks.isEmpty ? "No walks yet" : "\(store.walks.filter(\.completed).count) completed", systemImage: "leaf.fill", cut: 1, inset: 0)
+                    TrailRow(title: "Ritual map", subtitle: store.walks.isEmpty ? "Finished paths appear here" : "\(store.walks.filter(\.completed).count) completed", systemImage: "map", cut: 1, inset: 0)
             }
             .buttonStyle(.plain)
         }
     }
 
-    private static func clock(_ seconds: Int) -> String {
-        String(format: "%02d:%02d", seconds / 60, seconds % 60)
+    private var allNotes: [StopCheckIn] {
+        store.walks.flatMap(\.checkIns).filter { !$0.body.isEmpty }
+    }
+
+    private func beginOrResume() {
+        walkError = nil
+        if store.hasResumableWalk {
+            goWalk = true
+            return
+        }
+        guard let route = store.preferredRoute else {
+            walkError = "Compose a path with 4 to 6 named stops first."
+            return
+        }
+        guard route.isWalkable else {
+            walkError = "Name every stop (4 to 6) before walking this path."
+            return
+        }
+        _ = store.startWalk(from: route)
+        goWalk = true
     }
 }

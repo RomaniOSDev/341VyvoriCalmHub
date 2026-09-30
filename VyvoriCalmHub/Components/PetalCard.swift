@@ -96,6 +96,36 @@ struct TrailBlaze: View {
     }
 }
 
+struct PathMapTrail: View {
+    let titles: [String]
+    var doneCount: Int = 0
+    var highlightIndex: Int? = nil
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ForEach(Array(titles.enumerated()), id: \.offset) { index, title in
+                HStack(alignment: .top, spacing: 12) {
+                    VStack(spacing: 0) {
+                        TrailBlaze(size: index == highlightIndex ? 14 : 11)
+                        if index < titles.count - 1 {
+                            Rectangle()
+                                .fill(AppTheme.primary.opacity(index < doneCount ? 0.55 : 0.22))
+                                .frame(width: 2, height: 28)
+                        }
+                    }
+                    .frame(width: 18)
+                    Text(title)
+                        .font(.system(index == highlightIndex ? .headline : .subheadline, design: .serif))
+                        .foregroundColor(index < doneCount || index == highlightIndex ? .primary : .secondary)
+                        .padding(.top, 2)
+                    Spacer(minLength: 0)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
 struct RippleRings: View {
     var count: Int = 4
     var base: CGFloat = 148

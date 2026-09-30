@@ -45,8 +45,8 @@ enum WalkReminder {
         }
         let fireComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: fire)
         let content = UNMutableNotificationContent()
-        content.title = "A quiet walk"
-        content.body = "When you have a moment, step outside for a few mindful minutes."
+        content.title = "A path of stops"
+        content.body = "When you can step outside, walk your route one landing at a time."
         content.sound = .default
         let trigger = UNCalendarNotificationTrigger(dateMatching: fireComponents, repeats: false)
         let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)

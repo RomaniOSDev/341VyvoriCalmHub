@@ -1,77 +1,72 @@
 import SwiftUI
 
-struct ProgramsView: View {
+private struct RouteEditNav: Identifiable, Hashable {
+    let id: UUID
+}
+
+struct RoutesListView: View {
     @EnvironmentObject private var store: AppDataStore
-    @State private var startSession = false
+    @State private var editNav: RouteEditNav?
 
     var body: some View {
         ScrollView {
             VStack(spacing: 14) {
-                ForEach(WalkPrompts.catalog) { program in
-                    ProgramCard(program: program) { day in
-                        store.prepareProgramWalk(program: program, day: day)
-                        store.isWalkTimerShown = false
-                        startSession = true
-                    }
-                }
-            }
-            .padding(18)
-        }
-        .screenBackdrop("BgTrail")
-        .navigationTitle("Programs")
-        .navigationDestination(isPresented: $startSession) {
-            BreathPrepView(sessionPresented: $startSession)
-        }
-    }
-}
-
-private struct ProgramCard: View {
-    @EnvironmentObject private var store: AppDataStore
-    let program: WalkProgram
-    let onStartDay: (Int) -> Void
-
-    private var progress: ProgramProgress? { store.progress(for: program.id) }
-
-    var body: some View {
-        PetalCard {
-            VStack(alignment: .leading, spacing: 12) {
-                Text(program.title)
-                    .font(.system(.title3, design: .serif))
-                Text(program.summary)
+                Text("A path is a sequence of outdoor landings you already know — a doorstep, a lamp, a bench. You walk it by arriving at each stop and doing its ritual.")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-                Text("\(program.durationMinutes) min · \(progress?.completedDays.count ?? 0)/7 days")
-                    .font(.caption.weight(.semibold))
-                    .foregroundColor(AppTheme.primary)
-                HStack(spacing: 6) {
-                    ForEach(0..<7, id: \.self) { day in
-                        let done = progress?.completedDays.contains(day) == true
-                        Button {
-                            onStartDay(day)
-                        } label: {
-                            Text("\(day + 1)")
-                                .font(.caption.weight(.bold))
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 40)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 5, style: .continuous)
-                                        .fill(done ? AppTheme.primary : Color.white.opacity(0.72))
-                                        .rotationEffect(.degrees(45))
-                                        .padding(6)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                ForEach(store.routes) { route in
+                    NavigationLink {
+                        RouteEditorView(routeID: route.id)
+                    } label: {
+                        PetalCard {
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text(route.trimmedTitle.isEmpty ? "Untitled path" : route.trimmedTitle)
+                                    .font(.system(.title3, design: .serif))
+                                    .foregroundColor(.primary)
+                                Text(route.summary)
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                Text("\(route.stops.count) stops · \(route.isWalkable ? "Ready to walk" : "Needs named stops")")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundColor(AppTheme.primary)
+                                PathMapTrail(
+                                    titles: route.stops.map { $0.trimmedName.isEmpty ? "Unnamed" : $0.trimmedName }
                                 )
-                                .foregroundColor(done ? .white : AppTheme.primary)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        .buttonStyle(.plain)
                     }
+                    .buttonStyle(.plain)
                 }
-                if progress != nil {
-                    Button("Reset this course", role: .destructive) {
-                        store.resetProgram(program.id)
-                    }
-                    .frame(minHeight: 44)
+
+                PetalButton(title: "New path", systemImage: "plus") {
+                    let draft = WalkingRoute(
+                        title: "",
+                        summary: "A route of outdoor stops you choose yourself.",
+                        stops: (0..<4).map { index in
+                            RouteStop(name: "", ritual: StopRitual.allCases[index % StopRitual.allCases.count])
+                        }
+                    )
+                    store.upsertRoute(draft)
+                    editNav = RouteEditNav(id: draft.id)
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            .padding(.bottom, 28)
+        }
+        .clearScrollBackground()
+        .screenBackdrop("BgTrail")
+        .navigationTitle("Paths")
+        .navigationDestination(isPresented: Binding(
+            get: { editNav != nil },
+            set: { if !$0 { editNav = nil } }
+        )) {
+            if let id = editNav?.id {
+                RouteEditorView(routeID: id)
+            }
         }
     }
 }

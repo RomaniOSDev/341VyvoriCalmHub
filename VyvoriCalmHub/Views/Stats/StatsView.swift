@@ -1,36 +1,36 @@
 import SwiftUI
 import Charts
 
-struct StatsView: View {
+struct PlacesView: View {
     @EnvironmentObject private var store: AppDataStore
 
     var body: some View {
         ScrollView {
             VStack(spacing: 14) {
                 HStack(spacing: 10) {
-                    statTile("Walks", "\(completed.count)", "leaf.fill")
-                    statTile("Minutes", "\(totalMinutes)", "clock.fill")
-                    statTile("Streak", "\(store.currentStreak)", "flame.fill")
+                    statTile("Paths", "\(completed.count)", "map")
+                    statTile("Stops", "\(store.distinctStopNames.count)", "mappin")
+                    statTile("Check-ins", "\(checkIns.count)", "flag")
                 }
 
                 NavigationLink {
                     WeeklyReviewView()
                 } label: {
-                    TrailRow(title: "Weekly review", subtitle: "Look back, then choose what to keep", systemImage: "sun.haze.fill", cut: 2)
+                    TrailRow(title: "Sunday stops", subtitle: "Pick the landing to start with next week", systemImage: "sun.haze.fill", cut: 2)
                 }
                 .buttonStyle(.plain)
 
                 PetalCard {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Minutes this week")
+                        Text("Landings this week")
                             .font(.system(.headline, design: .serif))
-                        if completed.isEmpty {
-                            emptyChartHint
+                        if checkIns.isEmpty {
+                            emptyHint
                         } else {
                             Chart(weekDays) { item in
                                 BarMark(
                                     x: .value("Day", item.date, unit: .day),
-                                    y: .value("Minutes", item.minutes)
+                                    y: .value("Stops", item.count)
                                 )
                                 .foregroundStyle(AppTheme.primary)
                             }
@@ -50,56 +50,21 @@ struct StatsView: View {
 
                 PetalCard {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Walks, last 14 days")
+                        Text("Ritual mix")
                             .font(.system(.headline, design: .serif))
-                        if completed.isEmpty {
-                            emptyChartHint
-                        } else {
-                            Chart(fortnightDays) { item in
-                                LineMark(
-                                    x: .value("Day", item.date, unit: .day),
-                                    y: .value("Walks", item.walks)
-                                )
-                                .foregroundStyle(AppTheme.primary)
-                                .interpolationMethod(.catmullRom)
-                                AreaMark(
-                                    x: .value("Day", item.date, unit: .day),
-                                    y: .value("Walks", item.walks)
-                                )
-                                .foregroundStyle(AppTheme.primary.opacity(0.18))
-                                .interpolationMethod(.catmullRom)
-                            }
-                            .frame(height: 180)
-                            .chartXAxis {
-                                AxisMarks(values: .stride(by: .day, count: 3)) { _ in
-                                    AxisValueLabel(format: .dateTime.month(.abbreviated).day())
-                                }
-                            }
-                            .chartYAxis {
-                                AxisMarks(position: .leading)
-                            }
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-
-                PetalCard {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Moods")
-                            .font(.system(.headline, design: .serif))
-                        if moodCounts.isEmpty {
-                            Text("Moods appear after you save a reflection.")
+                        if ritualCounts.isEmpty {
+                            Text("Rituals appear after you check in at a stop.")
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                         } else {
-                            Chart(moodCounts) { item in
+                            Chart(ritualCounts) { item in
                                 BarMark(
                                     x: .value("Count", item.count),
-                                    y: .value("Mood", item.mood)
+                                    y: .value("Ritual", item.title)
                                 )
                                 .foregroundStyle(AppTheme.accent)
                             }
-                            .frame(height: CGFloat(max(120, moodCounts.count * 44)))
+                            .frame(height: CGFloat(max(120, ritualCounts.count * 44)))
                             .chartXAxis {
                                 AxisMarks(position: .bottom)
                             }
@@ -110,64 +75,71 @@ struct StatsView: View {
 
                 PetalCard {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Averages")
+                        Text("Places you have landed")
                             .font(.system(.headline, design: .serif))
-                        Text("Typical walk: \(averageMinutes) min")
-                            .foregroundColor(.secondary)
-                        Text("Reflections saved: \(store.insights.count)")
-                            .foregroundColor(.secondary)
+                        if store.distinctStopNames.isEmpty {
+                            Text("Walk a path to collect stop names.")
+                                .foregroundColor(.secondary)
+                        } else {
+                            ForEach(store.distinctStopNames, id: \.self) { name in
+                                HStack {
+                                    TrailBlaze(size: 9)
+                                    Text(name)
+                                    Spacer()
+                                    Text("\(visitCount(name))")
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundColor(AppTheme.primary)
+                                }
+                                .frame(minHeight: 36)
+                            }
+                        }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
-            .padding(18)
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            .padding(.bottom, 28)
         }
+        .clearScrollBackground()
         .screenBackdrop("BgTrail")
-        .navigationTitle("Statistics")
+        .navigationTitle("Places")
     }
 
-    private var emptyChartHint: some View {
-        Text("Complete a walk to see this chart.")
+    private var emptyHint: some View {
+        Text("Finish a path to see landings by day.")
             .font(.subheadline)
             .foregroundColor(.secondary)
             .frame(maxWidth: .infinity, minHeight: 80, alignment: .leading)
     }
 
-    private var completed: [WalkSession] {
+    private var completed: [RouteWalk] {
         store.walks.filter(\.completed)
     }
 
-    private var totalMinutes: Int {
-        completed.reduce(0) { $0 + $1.durationMinutes }
+    private var checkIns: [StopCheckIn] {
+        store.walks.flatMap(\.checkIns)
     }
 
-    private var averageMinutes: Int {
-        completed.isEmpty ? 0 : totalMinutes / completed.count
+    private var weekDays: [DayCount] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        return (0..<7).compactMap { offset in
+            guard let date = calendar.date(byAdding: .day, value: -(6 - offset), to: today) else { return nil }
+            let count = checkIns.filter { calendar.isDate($0.completedAt, inSameDayAs: date) }.count
+            return DayCount(date: date, count: count)
+        }
     }
 
-    private var weekDays: [DayMinutes] {
-        buckets(days: 7).map { DayMinutes(date: $0.date, minutes: $0.minutes) }
-    }
-
-    private var fortnightDays: [DayWalks] {
-        buckets(days: 14).map { DayWalks(date: $0.date, walks: $0.walks) }
-    }
-
-    private var moodCounts: [MoodCount] {
-        let grouped = Dictionary(grouping: store.insights, by: \.mood)
+    private var ritualCounts: [RitualCount] {
+        let grouped = Dictionary(grouping: checkIns, by: \.ritual)
         return grouped
-            .map { MoodCount(mood: $0.key, count: $0.value.count) }
+            .map { RitualCount(title: $0.key.title, count: $0.value.count) }
             .sorted { $0.count > $1.count }
     }
 
-    private func buckets(days: Int) -> [(date: Date, minutes: Int, walks: Int)] {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        return (0..<days).compactMap { offset in
-            guard let date = calendar.date(byAdding: .day, value: -(days - 1 - offset), to: today) else { return nil }
-            let dayWalks = completed.filter { calendar.isDate($0.startedAt, inSameDayAs: date) }
-            return (date, dayWalks.reduce(0) { $0 + $1.durationMinutes }, dayWalks.count)
-        }
+    private func visitCount(_ name: String) -> Int {
+        checkIns.filter { $0.stopName.caseInsensitiveCompare(name) == .orderedSame }.count
     }
 
     private func statTile(_ title: String, _ value: String, _ icon: String) -> some View {
@@ -186,20 +158,14 @@ struct StatsView: View {
     }
 }
 
-private struct DayMinutes: Identifiable {
+private struct DayCount: Identifiable {
     var id: Date { date }
     let date: Date
-    let minutes: Int
+    let count: Int
 }
 
-private struct DayWalks: Identifiable {
-    var id: Date { date }
-    let date: Date
-    let walks: Int
-}
-
-private struct MoodCount: Identifiable {
-    var id: String { mood }
-    let mood: String
+private struct RitualCount: Identifiable {
+    var id: String { title }
+    let title: String
     let count: Int
 }

@@ -1,257 +1,242 @@
 import SwiftUI
+import Combine
 
-struct WalkTimerView: View {
+struct RouteWalkView: View {
     @EnvironmentObject private var store: AppDataStore
     @Environment(\.scenePhase) private var scenePhase
     @Binding var sessionPresented: Bool
-    @State private var walkId = UUID()
-    @State private var startedAt = Date()
-    @State private var location = ""
+    @State private var walkId: UUID?
+    @State private var note = ""
+    @State private var remaining = 0
+    @State private var standFinished = false
+    @State private var error: String?
     @State private var showComplete = false
-    @State private var plannedMinutes = 20
-    @State private var sessionEnded = false
-    @State private var didLoadSession = false
-    @State private var prompts = WalkPrompts.standard
-    @State private var programId: String?
-    @State private var programDay: Int?
+    private let ticker = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
-    private var clock: WalkClock { store.clock }
+    private var walk: RouteWalk? {
+        guard let walkId else { return store.activeWalk }
+        return store.walks.first { $0.id == walkId } ?? store.activeWalk
+    }
+
+    private var stop: RouteStop? { walk?.nextStop }
 
     var body: some View {
-        VStack(spacing: 22) {
-            Image("BannerSteps")
-                .resizable()
-                .scaledToFill()
-                .frame(height: 96)
-                .clipShape(AppTheme.stoneShape(2))
-                .overlay(AppTheme.stoneShape(2).stroke(AppTheme.primary.opacity(0.3), lineWidth: 1.2))
-
-            ZStack {
-                RippleRings(count: 3, base: 150)
-                Text(timeLabel)
-                    .font(.system(size: 56, weight: .medium, design: .rounded))
-                    .monospacedDigit()
+        Group {
+            if showComplete {
+                Color.clear
+                    .screenBackdrop("BgTrail")
+            } else if let walk, let stop {
+                walkBody(walk: walk, stop: stop)
+            } else {
+                Text("This path is no longer available.")
                     .foregroundColor(.white)
-                    .shadow(color: Color.black.opacity(0.25), radius: 6, y: 2)
+                    .screenBackdrop("BgTrail")
             }
-            .frame(height: 220)
-
-            PetalCard(cut: 1) {
-                VStack(spacing: 8) {
-                    Text(prompts.isEmpty ? WalkPrompts.standard[0] : prompts[clock.promptIndex % max(prompts.count, 1)])
-                        .font(.system(.title3, design: .serif))
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(.primary)
-                    TextField("Where are you walking?", text: $location)
-                        .textFieldStyle(.roundedBorder)
-                    if !store.favoritePlaces.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
-                                ForEach(store.favoritePlaces) { place in
-                                    Button(place.name) {
-                                        location = place.name
-                                    }
-                                    .font(.caption.weight(.semibold))
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 8)
-                                    .background(AppTheme.stoneShape(0).fill(AppTheme.primary.opacity(0.16)))
-                                    .foregroundColor(AppTheme.primary)
-                                }
-                            }
-                        }
-                    }
-                    if canSavePlace {
-                        Button("Save as favorite") {
-                            store.addFavoritePlace(location)
-                        }
-                        .font(.caption.weight(.semibold))
-                        .foregroundColor(AppTheme.primary)
-                        .frame(minHeight: 44)
-                    }
-                }
-            }
-
-            HStack(spacing: 12) {
-                PetalButton(title: clock.running ? "Pause" : "Resume", systemImage: clock.running ? "pause.fill" : "play.fill") {
-                    if sessionEnded || (!clock.running && !clock.isOpenEnded && clock.remaining == 0) {
-                        startFresh()
-                    } else if clock.running {
-                        clock.pause()
-                        persistProgress(updateWalk: true)
-                    } else {
-                        clock.resume()
-                    }
-                }
-                Button("Stop") {
-                    if clock.isOpenEnded {
-                        finish(completed: true)
-                    } else {
-                        let done = clock.remaining == 0
-                        finish(completed: done)
-                        if !done {
-                            sessionPresented = false
-                        }
-                    }
-                }
-                .frame(minHeight: 44)
-                .foregroundColor(AppTheme.primary)
-            }
-
-            Spacer()
         }
-        .padding(18)
+        .navigationTitle("On the path")
+        .onAppear { prepare() }
+        .navigationDestination(isPresented: $showComplete) {
+            if let walkId {
+                RouteCompleteView(walkId: walkId, sessionPresented: $sessionPresented)
+            }
+        }
+    }
+
+    private func walkBody(walk: RouteWalk, stop: RouteStop) -> some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                Image("BannerSteps")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: 96)
+                    .clipShape(AppTheme.stoneShape(2))
+                    .overlay(AppTheme.stoneShape(2).stroke(AppTheme.primary.opacity(0.3), lineWidth: 1.2))
+
+                Text("Stop \(walk.currentStopIndex + 1) of \(walk.stops.count)")
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(.white.opacity(0.9))
+
+                ArriveMarkerView()
+
+                PetalCard(cut: 1) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(stop.trimmedName)
+                            .font(AppTheme.display(26))
+                        Text(stop.ritual.title)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundColor(AppTheme.primary)
+                        Text(stop.cue.isEmpty ? stop.ritual.instruction : stop.cue)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        PathMapTrail(
+                            titles: walk.stops.map(\.trimmedName),
+                            doneCount: walk.checkIns.count,
+                            highlightIndex: walk.currentStopIndex
+                        )
+                    }
+                }
+
+                ritualCard(for: stop)
+
+                if let error {
+                    Text(error)
+                        .font(.caption)
+                        .foregroundColor(.red)
+                }
+
+                PetalButton(
+                    title: walk.currentStopIndex + 1 >= walk.stops.count ? "Check in & finish" : "Check in & walk on",
+                    systemImage: "checkmark"
+                ) {
+                    submit()
+                }
+                Button("Leave path") {
+                    store.persistWalkProgress(walkId: walk.id, note: note, standRemaining: remaining)
+                    sessionPresented = false
+                }
+                .foregroundColor(AppTheme.primary)
+                .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            .padding(.bottom, 28)
+        }
+        .clearScrollBackground()
         .screenBackdrop("BgTrail")
         .keepScreenAwake()
-        .navigationTitle("Session")
-        .onAppear {
-            restoreOrStart()
-        }
+        .onReceive(ticker) { _ in tickStandStill() }
         .onDisappear {
-            persistProgress(updateWalk: true)
-        }
-        .onChange(of: clock.remaining) { value in
-            if value == 0, !clock.isOpenEnded, clock.elapsed > 0, !sessionEnded {
-                finish(completed: true)
-            }
-        }
-        .onChange(of: clock.elapsed) { value in
-            if clock.running, value > 0, value % 15 == 0 {
-                persistProgress(updateWalk: false)
+            if !showComplete {
+                store.persistWalkProgress(walkId: walk.id, note: note, standRemaining: remaining)
             }
         }
         .onChange(of: scenePhase) { phase in
-            if phase != .active {
-                clock.pause()
-                persistProgress(updateWalk: true)
+            if phase != .active, !showComplete {
+                store.persistWalkProgress(walkId: walk.id, note: note, standRemaining: remaining)
             }
         }
-        .navigationDestination(isPresented: $showComplete) {
-            WalkCompleteView(
-                walkId: walkId,
-                minutes: displayMinutes,
-                location: location,
-                sessionPresented: $sessionPresented
-            )
+    }
+
+    @ViewBuilder
+    private func ritualCard(for stop: RouteStop) -> some View {
+        PetalCard(cut: 2) {
+            VStack(alignment: .leading, spacing: 12) {
+                switch stop.ritual {
+                case .standStill:
+                    Text(standFinished ? "You can check in." : "Stand with this stop.")
+                        .font(.system(.headline, design: .serif))
+                    ZStack {
+                        RippleRings(count: 3, base: 110)
+                        Text(String(format: "%02d:%02d", remaining / 60, remaining % 60))
+                            .font(.system(size: 44, weight: .medium, design: .rounded))
+                            .monospacedDigit()
+                            .foregroundColor(AppTheme.primary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 160)
+                case .nameSound:
+                    Text("The farthest sound")
+                        .font(.system(.headline, design: .serif))
+                    TextField("A bus, a bird, a door…", text: $note, axis: .vertical)
+                        .textFieldStyle(.roundedBorder)
+                        .lineLimit(2...4)
+                case .groundTexture:
+                    Text("What the ground is doing")
+                        .font(.system(.headline, design: .serif))
+                    TextField("Wet leaf, hairline crack, pale dust…", text: $note, axis: .vertical)
+                        .textFieldStyle(.roundedBorder)
+                        .lineLimit(2...4)
+                case .shortNote:
+                    Text("A line to leave here")
+                        .font(.system(.headline, design: .serif))
+                    TextEditor(text: $note)
+                        .frame(minHeight: 120)
+                        .padding(8)
+                        .background(Color.white.opacity(0.55), in: AppTheme.stoneShape(0))
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
-    private var canSavePlace: Bool {
-        let trimmed = location.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty, store.favoritePlaces.count < 5 else { return false }
-        return !store.favoritePlaces.contains { $0.name.caseInsensitiveCompare(trimmed) == .orderedSame }
-    }
-
-    private var timeLabel: String {
-        let total = clock.isOpenEnded ? clock.elapsed : clock.remaining
-        return String(format: "%02d:%02d", total / 60, total % 60)
-    }
-
-    private var displayMinutes: Int {
-        if clock.isOpenEnded {
-            return max(1, Int((Double(clock.elapsed) / 60.0).rounded(.up)))
+    private func prepare() {
+        if let active = store.activeWalk {
+            walkId = active.id
+            restoreRitual(from: active)
+            if active.completed {
+                showComplete = true
+            }
         }
-        return max(plannedMinutes, 1)
     }
 
-    private func restoreOrStart() {
-        if sessionEnded { return }
-        if clock.isLive {
-            didLoadSession = true
+    private func restoreRitual(from walk: RouteWalk) {
+        error = nil
+        note = walk.draftNote
+        guard let stop = walk.nextStop else {
+            standFinished = true
+            remaining = 0
             return
         }
-        if didLoadSession { return }
-        didLoadSession = true
-        if let active = store.activeWalk, active.isOpenEnded || active.remainingSeconds > 0 {
-            walkId = active.walkId
-            startedAt = active.startedAt
-            location = active.location
-            plannedMinutes = active.plannedMinutes
-            prompts = active.prompts.isEmpty ? WalkPrompts.standard : active.prompts
-            programId = active.programId
-            programDay = active.programDay
-            if active.isOpenEnded {
-                clock.loadOpenEnded(elapsed: active.elapsedSeconds, promptIndex: active.promptIndex)
-            } else {
-                clock.loadCountdown(seconds: active.remainingSeconds, elapsed: active.elapsedSeconds, promptIndex: active.promptIndex)
-            }
-            if active.running {
-                clock.resume()
-            }
-            return
-        }
-        startFresh()
-    }
-
-    private func startFresh() {
-        sessionEnded = false
-        walkId = UUID()
-        startedAt = Date()
-        let duration = store.launchDurationMin ?? store.walkDurationMin
-        plannedMinutes = duration
-        prompts = store.launchPrompts ?? WalkPrompts.standard
-        programId = store.launchProgramId
-        programDay = store.launchProgramDay
-        if duration == 0 {
-            clock.loadOpenEnded(elapsed: 0, promptIndex: 0)
+        if stop.ritual == .standStill {
+            let start = max(20, stop.dwellSeconds)
+            remaining = walk.standRemaining > 0 ? min(walk.standRemaining, start) : start
+            standFinished = remaining == 0
         } else {
-            clock.loadCountdown(seconds: duration * 60, elapsed: 0, promptIndex: 0)
+            remaining = 0
+            standFinished = true
         }
-        clock.resume()
-        let walk = WalkSession(id: walkId, startedAt: startedAt, durationMinutes: max(plannedMinutes, 1), location: location, reflection: "", completed: false)
-        store.upsertWalk(walk)
-        persistProgress(updateWalk: false)
     }
 
-    private func persistProgress(updateWalk: Bool) {
-        guard !sessionEnded else { return }
-        if !clock.isOpenEnded, clock.remaining <= 0, clock.elapsed == 0 { return }
-        let elapsedSec = clock.elapsed
-        let elapsedMin = max(1, Int((Double(max(elapsedSec, 1)) / 60.0).rounded(.up)))
-        if updateWalk {
-            var walk = store.walks.first(where: { $0.id == walkId }) ?? WalkSession(id: walkId, startedAt: startedAt, durationMinutes: elapsedMin, location: location, reflection: "", completed: false)
-            walk.location = location
-            walk.durationMinutes = elapsedMin
-            walk.completed = false
-            store.upsertWalk(walk)
+    private func resetRitual(for stop: RouteStop?) {
+        note = ""
+        error = nil
+        standFinished = stop?.ritual != .standStill
+        remaining = stop?.ritual == .standStill ? max(20, stop?.dwellSeconds ?? 30) : 0
+    }
+
+    private func tickStandStill() {
+        guard let stop, stop.ritual == .standStill, !standFinished, remaining > 0 else { return }
+        remaining -= 1
+        if remaining == 0 {
+            standFinished = true
+            UIImpactFeedbackGenerator(style: .soft).impactOccurred()
         }
-        store.activeWalk = ActiveWalk(
-            walkId: walkId,
-            remainingSeconds: clock.remaining,
-            startedAt: startedAt,
-            location: location,
-            plannedMinutes: plannedMinutes,
-            promptIndex: clock.promptIndex,
-            running: clock.running,
-            isOpenEnded: clock.isOpenEnded,
-            elapsedSeconds: clock.elapsed,
-            programId: programId,
-            programDay: programDay,
-            prompts: prompts
+    }
+
+    private func submit() {
+        guard let walk, let stop else { return }
+        error = nil
+        if stop.ritual == .standStill, !standFinished {
+            error = "Stay at this stop until the count ends."
+            return
+        }
+        let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        if stop.ritual != .standStill, trimmed.isEmpty {
+            error = "Write what you found at this stop."
+            return
+        }
+        let body: String
+        switch stop.ritual {
+        case .standStill:
+            body = "Stood still for \(stop.dwellSeconds)s"
+        case .nameSound, .groundTexture, .shortNote:
+            body = trimmed
+        }
+        let checkIn = StopCheckIn(
+            id: UUID(),
+            stopId: stop.id,
+            stopName: stop.trimmedName,
+            ritual: stop.ritual,
+            body: body,
+            dwellSeconds: stop.ritual == .standStill ? stop.dwellSeconds : 0,
+            completedAt: Date()
         )
-        store.save()
-    }
-
-    private func finish(completed: Bool) {
-        guard !sessionEnded else { return }
-        clock.pause()
-        sessionEnded = true
-        store.isWalkTimerShown = false
-        let elapsedSec = clock.elapsed
-        let elapsedMin = max(1, completed && !clock.isOpenEnded ? max(plannedMinutes, 1) : Int((Double(elapsedSec) / 60.0).rounded(.up)))
-        var walk = store.walks.first(where: { $0.id == walkId }) ?? WalkSession(id: walkId, startedAt: startedAt, durationMinutes: elapsedMin, location: location, reflection: "", completed: completed)
-        walk.location = location
-        walk.durationMinutes = elapsedMin
-        walk.completed = completed
-        store.upsertWalk(walk)
-        if completed, let programId, let programDay {
-            store.markProgramDay(programId: programId, day: programDay)
-        }
-        store.activeWalk = nil
-        store.clearLaunchOverrides()
-        clock.reset()
-        store.save()
-        if completed {
+        let wasLast = walk.currentStopIndex + 1 >= walk.stops.count
+        store.recordCheckIn(walkId: walk.id, checkIn: checkIn)
+        if wasLast {
             showComplete = true
+        } else {
+            resetRitual(for: store.walks.first { $0.id == walk.id }?.nextStop)
         }
     }
 }

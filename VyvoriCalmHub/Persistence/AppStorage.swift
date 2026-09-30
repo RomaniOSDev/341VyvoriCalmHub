@@ -5,209 +5,105 @@ extension Notification.Name {
     static let dataReset = Notification.Name("dataReset")
 }
 
-final class WalkClock: ObservableObject {
-    @Published var remaining = 0
-    @Published var elapsed = 0
-    @Published var running = false
-    @Published var isOpenEnded = false
-    @Published var promptIndex = 0
-
-    private var timer: Timer?
-
-    var isLive: Bool {
-        isOpenEnded || remaining > 0
-    }
-
-    func loadCountdown(seconds: Int, elapsed: Int, promptIndex: Int) {
-        isOpenEnded = false
-        remaining = max(0, seconds)
-        self.elapsed = elapsed
-        self.promptIndex = promptIndex
-    }
-
-    func loadOpenEnded(elapsed: Int, promptIndex: Int) {
-        isOpenEnded = true
-        remaining = 0
-        self.elapsed = elapsed
-        self.promptIndex = promptIndex
-    }
-
-    func resume() {
-        running = true
-        arm()
-    }
-
-    func pause() {
-        running = false
-        timer?.invalidate()
-        timer = nil
-    }
-
-    func reset() {
-        pause()
-        remaining = 0
-        elapsed = 0
-        isOpenEnded = false
-        promptIndex = 0
-    }
-
-    private func arm() {
-        timer?.invalidate()
-        let next = Timer(timeInterval: 1, repeats: true) { [weak self] _ in
-            self?.tick()
-        }
-        RunLoop.main.add(next, forMode: .common)
-        timer = next
-    }
-
-    private func tick() {
-        guard running else { return }
-        if isOpenEnded {
-            elapsed += 1
-            if elapsed % 60 == 0 {
-                promptIndex += 1
-            }
-            return
-        }
-        guard remaining > 0 else { return }
-        remaining -= 1
-        elapsed += 1
-        if remaining % 60 == 0 {
-            promptIndex += 1
-        }
-        if remaining == 0 {
-            pause()
-        }
-    }
-}
-
 @MainActor
 final class AppDataStore: ObservableObject {
     static let shared = AppDataStore()
 
-    @Published var walks: [WalkSession] = []
-    @Published var insights: [Insight] = []
-    @Published var walkDurationMin: Int = 20
-    @Published var lastVisitedInsightDate: Date?
-    @Published var weeklySummary: String = ""
-    @Published var activeWalk: ActiveWalk?
-    @Published var favoritePlaces: [FavoritePlace] = []
-    @Published var programProgress: [ProgramProgress] = []
+    @Published var routes: [WalkingRoute] = []
+    @Published var walks: [RouteWalk] = []
     @Published var reminderEnabled = false
     @Published var reminderHour = 8
     @Published var reminderMinute = 0
-    @Published var weeklyKeeps: [WeeklyKeepNote] = []
+    @Published var focusStopName = ""
     @Published var lastReviewYear = 0
     @Published var lastReviewWeek = 0
-    @Published var isWalkTimerShown = false
-    let clock = WalkClock()
-    var launchPrompts: [String]?
-    var launchProgramId: String?
-    var launchProgramDay: Int?
-    var launchDurationMin: Int?
+    @Published var selectedRouteId: UUID?
 
     private let defaults = UserDefaults.standard
-    private let walksKey = "walks"
-    private let insightsKey = "insights"
-    private let durationKey = "walkDurationMin"
-    private let lastInsightKey = "lastVisitedInsightDate"
-    private let weeklyKey = "weeklySummary"
-    private let activeWalkKey = "activeWalk"
-    private let favoritesKey = "favoritePlaces"
-    private let programsKey = "programProgress"
+    private let routesKey = "walkingRoutes.v2"
+    private let walksKey = "routeWalks.v2"
+    private let seededKey = "didSeedStarterRoutes.v2"
     private let reminderOnKey = "reminderEnabled"
     private let reminderHourKey = "reminderHour"
     private let reminderMinuteKey = "reminderMinute"
-    private let weeklyKeepsKey = "weeklyKeeps"
+    private let focusStopKey = "focusStopName"
     private let lastReviewYearKey = "lastReviewYear"
     private let lastReviewWeekKey = "lastReviewWeek"
-    private var cancellables = Set<AnyCancellable>()
+    private let selectedRouteKey = "selectedRouteId"
+    private let legacyKeys = [
+        "walks", "insights", "walkDurationMin", "lastVisitedInsightDate", "weeklySummary",
+        "activeWalk", "favoritePlaces", "programProgress", "weeklyKeeps"
+    ]
 
     private init() {
-        clock.objectWillChange
-            .receive(on: RunLoop.main)
-            .sink { [weak self] _ in self?.objectWillChange.send() }
-            .store(in: &cancellables)
         load()
     }
 
     func load() {
-        walks = decode([WalkSession].self, key: walksKey) ?? []
-        insights = decode([Insight].self, key: insightsKey) ?? []
-        if defaults.object(forKey: durationKey) == nil {
-            walkDurationMin = 20
-        } else {
-            walkDurationMin = defaults.integer(forKey: durationKey)
+        routes = decode([WalkingRoute].self, key: routesKey) ?? []
+        walks = decode([RouteWalk].self, key: walksKey) ?? []
+        if !defaults.bool(forKey: seededKey), routes.isEmpty {
+            routes = StarterRoutes.all
+            defaults.set(true, forKey: seededKey)
+            encode(routes, key: routesKey)
         }
-        lastVisitedInsightDate = defaults.object(forKey: lastInsightKey) as? Date
-        weeklySummary = defaults.string(forKey: weeklyKey) ?? ""
-        activeWalk = decode(ActiveWalk.self, key: activeWalkKey)
-        if let active = activeWalk, !active.isOpenEnded, active.remainingSeconds <= 0 {
-            activeWalk = nil
-        }
-        favoritePlaces = decode([FavoritePlace].self, key: favoritesKey) ?? []
-        programProgress = decode([ProgramProgress].self, key: programsKey) ?? []
         reminderEnabled = defaults.bool(forKey: reminderOnKey)
-        let hour = defaults.object(forKey: reminderHourKey) as? Int
-        reminderHour = hour ?? 8
-        reminderMinute = defaults.object(forKey: reminderMinuteKey) as? Int ?? 0
-        weeklyKeeps = decode([WeeklyKeepNote].self, key: weeklyKeepsKey) ?? []
+        reminderHour = (defaults.object(forKey: reminderHourKey) as? Int) ?? 8
+        reminderMinute = (defaults.object(forKey: reminderMinuteKey) as? Int) ?? 0
+        focusStopName = defaults.string(forKey: focusStopKey) ?? ""
         lastReviewYear = defaults.integer(forKey: lastReviewYearKey)
         lastReviewWeek = defaults.integer(forKey: lastReviewWeekKey)
-        refreshWeekly()
+        if let raw = defaults.string(forKey: selectedRouteKey), let id = UUID(uuidString: raw) {
+            selectedRouteId = id
+        }
+        if selectedRouteId == nil || !(routes.contains { $0.id == selectedRouteId }) {
+            selectedRouteId = preferredRoute?.id
+        }
         rescheduleReminder()
     }
 
     func save() {
+        encode(routes, key: routesKey)
         encode(walks, key: walksKey)
-        encode(insights, key: insightsKey)
-        defaults.set(walkDurationMin, forKey: durationKey)
-        defaults.set(lastVisitedInsightDate, forKey: lastInsightKey)
-        defaults.set(weeklySummary, forKey: weeklyKey)
-        if let activeWalk {
-            encode(activeWalk, key: activeWalkKey)
-        } else {
-            defaults.removeObject(forKey: activeWalkKey)
-        }
-        encode(favoritePlaces, key: favoritesKey)
-        encode(programProgress, key: programsKey)
         defaults.set(reminderEnabled, forKey: reminderOnKey)
         defaults.set(reminderHour, forKey: reminderHourKey)
         defaults.set(reminderMinute, forKey: reminderMinuteKey)
-        encode(weeklyKeeps, key: weeklyKeepsKey)
+        defaults.set(focusStopName, forKey: focusStopKey)
         defaults.set(lastReviewYear, forKey: lastReviewYearKey)
         defaults.set(lastReviewWeek, forKey: lastReviewWeekKey)
+        defaults.set(selectedRouteId?.uuidString, forKey: selectedRouteKey)
+    }
+
+    var preferredRoute: WalkingRoute? {
+        if let id = selectedRouteId, let match = routes.first(where: { $0.id == id }) {
+            return match
+        }
+        return routes.first(where: \.isWalkable) ?? routes.first
+    }
+
+    var activeWalk: RouteWalk? {
+        walks.first { !$0.completed && $0.nextStop != nil }
     }
 
     var hasResumableWalk: Bool {
-        if clock.isLive { return true }
-        guard let active = activeWalk else { return false }
-        return active.isOpenEnded || active.remainingSeconds > 0
+        activeWalk != nil
     }
 
-    var durationLabel: String {
-        walkDurationMin == 0 ? "Until I stop" : "Duration: \(walkDurationMin) min"
+    var weeklySummary: String {
+        let week = completedWalks(since: weekStart)
+        if week.isEmpty { return "No path finished this week yet." }
+        let stops = week.reduce(0) { $0 + $1.checkIns.count }
+        let places = Set(week.flatMap { $0.checkIns.map(\.stopName) }).count
+        return "\(week.count) paths · \(stops) stops · \(places) distinct places"
     }
 
     var hasCompletedWalkToday: Bool {
         walks.contains { $0.completed && Calendar.current.isDateInToday($0.startedAt) }
     }
 
-    var currentStreak: Int {
-        let calendar = Calendar.current
-        let days = Set(walks.filter(\.completed).map { calendar.startOfDay(for: $0.startedAt) })
-        var cursor = calendar.startOfDay(for: Date())
-        if !days.contains(cursor) {
-            guard let yesterday = calendar.date(byAdding: .day, value: -1, to: cursor) else { return 0 }
-            cursor = yesterday
-        }
-        var count = 0
-        while days.contains(cursor) {
-            count += 1
-            guard let previous = calendar.date(byAdding: .day, value: -1, to: cursor) else { break }
-            cursor = previous
-        }
-        return count
+    var distinctStopNames: [String] {
+        let names = walks.filter(\.completed).flatMap { $0.checkIns.map(\.stopName) }
+        return Array(Set(names)).sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
     }
 
     var shouldShowSundayReview: Bool {
@@ -218,116 +114,115 @@ final class AppDataStore: ObservableObject {
         return lastReviewYear != year || lastReviewWeek != week
     }
 
-    func upsertWalk(_ walk: WalkSession) {
-        if let index = walks.firstIndex(where: { $0.id == walk.id }) {
-            walks[index] = walk
-        } else {
-            walks.insert(walk, at: 0)
-        }
-        refreshWeekly()
+    func selectRoute(_ id: UUID) {
+        selectedRouteId = id
         save()
-        if walk.completed {
+    }
+
+    func upsertRoute(_ route: WalkingRoute) {
+        if let index = routes.firstIndex(where: { $0.id == route.id }) {
+            routes[index] = route
+        } else {
+            routes.insert(route, at: 0)
+        }
+        selectedRouteId = route.id
+        save()
+    }
+
+    func deleteRoute(_ id: UUID) {
+        routes.removeAll { $0.id == id }
+        if selectedRouteId == id {
+            selectedRouteId = preferredRoute?.id
+        }
+        save()
+    }
+
+    func duplicateRoute(_ route: WalkingRoute) {
+        var copy = route
+        copy.id = UUID()
+        copy.title = route.trimmedTitle.isEmpty ? "Copied path" : "\(route.trimmedTitle) copy"
+        copy.isStarter = false
+        copy.createdAt = Date()
+        copy.stops = route.stops.map { stop in
+            var next = stop
+            next.id = UUID()
+            return next
+        }
+        upsertRoute(copy)
+    }
+
+    func startWalk(from route: WalkingRoute) -> RouteWalk? {
+        guard route.isWalkable else { return nil }
+        if let existing = activeWalk {
+            return existing
+        }
+        let walk = RouteWalk(
+            id: UUID(),
+            routeId: route.id,
+            routeTitle: route.trimmedTitle,
+            startedAt: Date(),
+            finishedAt: nil,
+            stops: route.stops,
+            checkIns: [],
+            currentStopIndex: 0,
+            completed: false,
+            closingLine: "",
+            standRemaining: 0,
+            draftNote: ""
+        )
+        walks.insert(walk, at: 0)
+        selectedRouteId = route.id
+        save()
+        return walk
+    }
+
+    func recordCheckIn(walkId: UUID, checkIn: StopCheckIn) {
+        guard let index = walks.firstIndex(where: { $0.id == walkId }) else { return }
+        walks[index].checkIns.append(checkIn)
+        walks[index].currentStopIndex += 1
+        walks[index].draftNote = ""
+        walks[index].standRemaining = 0
+        if walks[index].currentStopIndex >= walks[index].stops.count {
+            walks[index].completed = true
+            walks[index].finishedAt = Date()
+        }
+        save()
+        if walks[index].completed {
             rescheduleReminder()
         }
     }
 
-    func deleteWalk(_ id: UUID) {
-        walks.removeAll { $0.id == id }
-        insights.removeAll { $0.walkId == id }
-        if activeWalk?.walkId == id {
-            activeWalk = nil
-        }
-        refreshWeekly()
+    func finishWalk(walkId: UUID, closingLine: String) {
+        guard let index = walks.firstIndex(where: { $0.id == walkId }) else { return }
+        walks[index].closingLine = closingLine.trimmingCharacters(in: .whitespacesAndNewlines)
+        walks[index].completed = true
+        walks[index].finishedAt = walks[index].finishedAt ?? Date()
+        walks[index].currentStopIndex = walks[index].stops.count
         save()
         rescheduleReminder()
     }
 
-    func upsertInsight(_ insight: Insight) {
-        if let index = insights.firstIndex(where: { $0.id == insight.id }) {
-            insights[index] = insight
-        } else {
-            insights.insert(insight, at: 0)
-        }
-        lastVisitedInsightDate = insight.date
-        refreshWeekly()
+    func persistWalkProgress(walkId: UUID, note: String, standRemaining: Int) {
+        guard let index = walks.firstIndex(where: { $0.id == walkId }) else { return }
+        walks[index].draftNote = note
+        walks[index].standRemaining = standRemaining
         save()
     }
 
-    func deleteInsight(_ id: UUID) {
-        insights.removeAll { $0.id == id }
+    func deleteWalk(_ id: UUID) {
+        walks.removeAll { $0.id == id }
         save()
+        rescheduleReminder()
     }
 
-    func addFavoritePlace(_ name: String) {
-        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty, favoritePlaces.count < 5 else { return }
-        guard !favoritePlaces.contains(where: { $0.name.caseInsensitiveCompare(trimmed) == .orderedSame }) else { return }
-        favoritePlaces.append(FavoritePlace(id: UUID(), name: trimmed))
-        save()
+    func completedWalks(since date: Date) -> [RouteWalk] {
+        walks.filter { $0.completed && $0.startedAt >= date }
     }
 
-    func removeFavoritePlace(_ id: UUID) {
-        favoritePlaces.removeAll { $0.id == id }
-        save()
-    }
-
-    func markProgramDay(programId: String, day: Int) {
-        if let index = programProgress.firstIndex(where: { $0.programId == programId }) {
-            if !programProgress[index].completedDays.contains(day) {
-                programProgress[index].completedDays.append(day)
-            }
-        } else {
-            programProgress.append(ProgramProgress(programId: programId, completedDays: [day], startedAt: Date()))
-        }
-        save()
-    }
-
-    func resetProgram(_ programId: String) {
-        programProgress.removeAll { $0.programId == programId }
-        save()
-    }
-
-    func progress(for programId: String) -> ProgramProgress? {
-        programProgress.first { $0.programId == programId }
-    }
-
-    func prepareProgramWalk(program: WalkProgram, day: Int) {
-        launchDurationMin = program.durationMinutes
-        launchProgramId = program.id
-        launchProgramDay = day
-        var prompts = WalkPrompts.standard
-        if program.dayPrompts.indices.contains(day) {
-            prompts.insert(program.dayPrompts[day], at: 0)
-        }
-        launchPrompts = prompts
-    }
-
-    func clearLaunchOverrides() {
-        launchPrompts = nil
-        launchProgramId = nil
-        launchProgramDay = nil
-        launchDurationMin = nil
-    }
-
-    func saveWeeklyKeep(_ text: String) {
-        let calendar = Calendar.current
-        let year = calendar.component(.yearForWeekOfYear, from: Date())
-        let week = calendar.component(.weekOfYear, from: Date())
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        if let index = weeklyKeeps.firstIndex(where: { $0.year == year && $0.weekOfYear == week }) {
-            weeklyKeeps[index].text = trimmed
-        } else {
-            weeklyKeeps.insert(WeeklyKeepNote(id: UUID(), year: year, weekOfYear: week, text: trimmed), at: 0)
-        }
+    func saveFocusStop(_ name: String) {
+        focusStopName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         markReviewSeen()
         save()
-    }
-
-    func keepNoteThisWeek() -> String {
-        let calendar = Calendar.current
-        let year = calendar.component(.yearForWeekOfYear, from: Date())
-        let week = calendar.component(.weekOfYear, from: Date())
-        return weeklyKeeps.first { $0.year == year && $0.weekOfYear == week }?.text ?? ""
     }
 
     func markReviewSeen() {
@@ -350,39 +245,37 @@ final class AppDataStore: ObservableObject {
     }
 
     func rescheduleReminder() {
-        WalkReminder.reschedule(enabled: reminderEnabled, hour: reminderHour, minute: reminderMinute, walkedToday: hasCompletedWalkToday)
+        WalkReminder.reschedule(
+            enabled: reminderEnabled,
+            hour: reminderHour,
+            minute: reminderMinute,
+            walkedToday: hasCompletedWalkToday
+        )
     }
 
-    func refreshWeekly() {
-        let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date()
-        let weekWalks = walks.filter { $0.startedAt >= weekAgo && $0.completed }
-        let minutes = weekWalks.reduce(0) { $0 + $1.durationMinutes }
-        weeklySummary = weekWalks.isEmpty ? "No completed walks this week yet." : "\(weekWalks.count) walks · \(minutes) mindful minutes"
+    var weekStart: Date {
+        let calendar = Calendar.current
+        let now = Date()
+        let weekday = calendar.component(.weekday, from: now)
+        let daysFromSunday = weekday - 1
+        return calendar.startOfDay(for: calendar.date(byAdding: .day, value: -daysFromSunday, to: now) ?? now)
     }
 
     func resetAllData() {
-        [
-            walksKey, insightsKey, durationKey, lastInsightKey, weeklyKey, activeWalkKey,
-            favoritesKey, programsKey, reminderOnKey, reminderHourKey, reminderMinuteKey,
-            weeklyKeepsKey, lastReviewYearKey, lastReviewWeekKey
-        ].forEach { defaults.removeObject(forKey: $0) }
+        ([routesKey, walksKey, seededKey, reminderOnKey, reminderHourKey, reminderMinuteKey,
+          focusStopKey, lastReviewYearKey, lastReviewWeekKey, selectedRouteKey] + legacyKeys)
+            .forEach { defaults.removeObject(forKey: $0) }
+        routes = StarterRoutes.all
         walks = []
-        insights = []
-        walkDurationMin = 20
-        lastVisitedInsightDate = nil
-        weeklySummary = ""
-        activeWalk = nil
-        favoritePlaces = []
-        programProgress = []
         reminderEnabled = false
         reminderHour = 8
         reminderMinute = 0
-        weeklyKeeps = []
+        focusStopName = ""
         lastReviewYear = 0
         lastReviewWeek = 0
-        isWalkTimerShown = false
-        clock.reset()
-        clearLaunchOverrides()
+        selectedRouteId = routes.first?.id
+        defaults.set(true, forKey: seededKey)
+        save()
         WalkReminder.cancel()
         NotificationCenter.default.post(name: .dataReset, object: nil)
     }

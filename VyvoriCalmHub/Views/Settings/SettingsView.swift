@@ -13,7 +13,7 @@ struct SettingsView: View {
                 VStack(spacing: 12) {
                     PetalCard {
                         VStack(alignment: .leading, spacing: 12) {
-                            Toggle("Daily reminder", isOn: reminderBinding)
+                            Toggle("Daily path reminder", isOn: reminderBinding)
                                 .tint(AppTheme.primary)
                             if store.reminderEnabled {
                                 DatePicker("Time", selection: $reminderTime, displayedComponents: .hourAndMinute)
@@ -21,33 +21,22 @@ struct SettingsView: View {
                                         let parts = Calendar.current.dateComponents([.hour, .minute], from: newValue)
                                         store.updateReminder(enabled: true, hour: parts.hour ?? 8, minute: parts.minute ?? 0, requestPermission: false)
                                     }
-                                Text("Skipped automatically if you already walked today.")
+                                Text("Skipped automatically if you already finished a path today.")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
                         }
                     }
 
-                    PetalCard {
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("Favorite places")
-                                .font(.headline)
-                            if store.favoritePlaces.isEmpty {
-                                Text("Save a place from a walk to reuse it later.")
-                                    .font(.subheadline)
+                    if !store.focusStopName.isEmpty {
+                        PetalCard {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("Next beginning")
+                                    .font(.headline)
+                                Text(store.focusStopName)
                                     .foregroundColor(.secondary)
-                            } else {
-                                ForEach(store.favoritePlaces) { place in
-                                    HStack {
-                                        Text(place.name)
-                                        Spacer()
-                                        Button("Remove", role: .destructive) {
-                                            store.removeFavoritePlace(place.id)
-                                        }
-                                        .frame(minHeight: 44)
-                                    }
-                                }
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
 
@@ -67,12 +56,15 @@ struct SettingsView: View {
                         .padding()
                         .background(AppTheme.stoneShape(2).fill(Color.white.opacity(0.8)))
                 }
-                .padding(18)
+                .padding(.horizontal, 20)
+                .padding(.top, 16)
+                .padding(.bottom, 28)
             }
+            .clearScrollBackground()
             .screenBackdrop("BgTrail")
             .navigationTitle("Settings")
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Done") { dismiss() } } }
-            .alert("Clear walks and notes?", isPresented: $confirmReset) {
+            .alert("Clear paths and check-ins?", isPresented: $confirmReset) {
                 Button("Reset", role: .destructive) { store.resetAllData() }
                 Button("Cancel", role: .cancel) { }
             }

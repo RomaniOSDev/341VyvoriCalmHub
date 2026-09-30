@@ -1,65 +1,31 @@
 import SwiftUI
+import Combine
 
-struct BreathPrepView: View {
-    @EnvironmentObject private var store: AppDataStore
-    @Binding var sessionPresented: Bool
-    @State private var remaining = 45
+struct ArriveMarkerView: View {
     @State private var inhaling = true
-    private let ticker = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    private let breath = Timer.publish(every: 4, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
-            ZStack {
-                RippleRings(count: 5, base: inhaling ? 150 : 118)
-                    .animation(.easeInOut(duration: 4), value: inhaling)
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .fill(AppTheme.trail)
-                    .frame(width: inhaling ? 132 : 108, height: inhaling ? 132 : 108)
-                    .rotationEffect(.degrees(45))
-                    .shadow(color: AppTheme.primary.opacity(0.4), radius: 16, y: 8)
-                    .animation(.easeInOut(duration: 4), value: inhaling)
-                VStack(spacing: 4) {
-                    Text(inhaling ? "Breathe in" : "Breathe out")
-                        .font(.system(.headline, design: .serif))
-                    Text("with a step")
-                        .font(.caption)
-                        .opacity(0.85)
-                }
-                .foregroundColor(.white)
-            }
-            .frame(height: 280)
-            Text("\(remaining)s")
-                .font(.system(size: 32, weight: .medium, design: .rounded))
-                .monospacedDigit()
-                .foregroundColor(.white)
-            Text("A short landing before you walk.")
-                .font(.system(.subheadline, design: .serif))
-                .foregroundColor(.white.opacity(0.86))
-            Spacer()
-            PetalButton(title: remaining == 0 ? "Begin walk" : "Skip", systemImage: remaining == 0 ? "figure.walk" : "forward.fill") {
-                store.isWalkTimerShown = true
+        ZStack {
+            RippleRings(count: 4, base: inhaling ? 118 : 98)
+                .animation(.easeInOut(duration: 3.2), value: inhaling)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(AppTheme.trail)
+                .frame(width: inhaling ? 86 : 74, height: inhaling ? 86 : 74)
+                .rotationEffect(.degrees(45))
+                .shadow(color: AppTheme.primary.opacity(0.4), radius: 12, y: 6)
+                .animation(.easeInOut(duration: 3.2), value: inhaling)
+            VStack(spacing: 2) {
+                TrailBlaze(size: 12)
+                Text("Here")
+                    .font(.system(.caption, design: .serif).weight(.semibold))
+                    .foregroundColor(.white)
             }
         }
-        .padding(18)
-        .screenBackdrop("BgTrail")
-        .keepScreenAwake()
-        .navigationTitle("Settle")
+        .frame(height: 180)
         .onAppear { inhaling = true }
-        .onReceive(ticker) { _ in
-            guard !store.isWalkTimerShown, remaining > 0 else { return }
-            remaining -= 1
-            if remaining == 0 {
-                store.isWalkTimerShown = true
-            }
-        }
-        .onReceive(breath) { _ in
-            guard !store.isWalkTimerShown else { return }
+        .onReceive(Timer.publish(every: 3.2, on: .main, in: .common).autoconnect()) { _ in
             inhaling.toggle()
         }
-        .navigationDestination(isPresented: $store.isWalkTimerShown) {
-            WalkTimerView(sessionPresented: $sessionPresented)
-        }
+        .allowsHitTesting(false)
     }
 }
