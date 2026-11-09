@@ -22,8 +22,8 @@ struct SettingsView: View {
                                         store.updateReminder(enabled: true, hour: parts.hour ?? 8, minute: parts.minute ?? 0, requestPermission: false)
                                     }
                                 Text("Skipped automatically if you already finished a path today.")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .font(.subheadline)
+                                    .foregroundColor(AppTheme.inkMuted)
                             }
                         }
                     }
@@ -33,8 +33,10 @@ struct SettingsView: View {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text("Next beginning")
                                     .font(.headline)
+                                    .foregroundColor(AppTheme.ink)
                                 Text(store.focusStopName)
-                                    .foregroundColor(.secondary)
+                                    .font(.body)
+                                    .foregroundColor(AppTheme.inkMuted)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
@@ -54,7 +56,7 @@ struct SettingsView: View {
                     Button("Reset All Data", role: .destructive) { confirmReset = true }
                         .frame(maxWidth: .infinity, minHeight: 44)
                         .padding()
-                        .background(AppTheme.stoneShape(2).fill(Color.white.opacity(0.8)))
+                        .background(AppTheme.stoneShape(2).fill(AppTheme.card))
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
@@ -62,6 +64,7 @@ struct SettingsView: View {
             }
             .clearScrollBackground()
             .screenBackdrop("BgTrail")
+            .readableChrome()
             .navigationTitle("Settings")
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Done") { dismiss() } } }
             .alert("Clear paths and check-ins?", isPresented: $confirmReset) {
@@ -70,7 +73,8 @@ struct SettingsView: View {
             }
             .onAppear { reminderTime = time(from: store.reminderHour, store.reminderMinute) }
         }
-        .tint(AppTheme.primary)
+        .tint(AppTheme.accentInk)
+        .preferredColorScheme(.light)
     }
 
     private var reminderBinding: Binding<Bool> {
@@ -94,10 +98,10 @@ struct SettingsView: View {
                     .foregroundColor(AppTheme.primary)
                 Text(title)
                     .font(.headline)
-                    .foregroundColor(.primary)
+                    .foregroundColor(AppTheme.ink)
                 Spacer()
                 Image(systemName: "chevron.right")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.inkMuted)
             }
             .padding(16)
             .background(

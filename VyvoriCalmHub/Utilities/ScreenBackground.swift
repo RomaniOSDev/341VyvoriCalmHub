@@ -20,6 +20,13 @@ extension View {
             }
     }
 
+    func readableChrome() -> some View {
+        self
+            .toolbarBackground(AppTheme.background, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarColorScheme(.light, for: .navigationBar)
+    }
+
     func keepScreenAwake() -> some View {
         self
             .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
@@ -64,7 +71,7 @@ private struct TrailGround: View {
                     .scaledToFill()
                     .frame(width: geo.size.width, height: geo.size.height * 0.42)
                     .clipped()
-                    .opacity(0.22)
+                    .opacity(0.10)
                     .mask(
                         LinearGradient(colors: [.white, .clear], startPoint: .top, endPoint: .bottom)
                     )

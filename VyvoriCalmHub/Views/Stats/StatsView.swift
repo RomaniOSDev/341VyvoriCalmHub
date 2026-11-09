@@ -24,6 +24,7 @@ struct PlacesView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Landings this week")
                             .font(.system(.headline, design: .serif))
+                            .foregroundColor(AppTheme.ink)
                         if checkIns.isEmpty {
                             emptyHint
                         } else {
@@ -38,10 +39,15 @@ struct PlacesView: View {
                             .chartXAxis {
                                 AxisMarks(values: .stride(by: .day)) { _ in
                                     AxisValueLabel(format: .dateTime.weekday(.narrow))
+                                        .foregroundStyle(AppTheme.inkMuted)
                                 }
                             }
                             .chartYAxis {
-                                AxisMarks(position: .leading)
+                                AxisMarks(position: .leading) { _ in
+                                    AxisValueLabel()
+                                        .foregroundStyle(AppTheme.inkMuted)
+                                    AxisGridLine()
+                                }
                             }
                         }
                     }
@@ -52,10 +58,11 @@ struct PlacesView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Ritual mix")
                             .font(.system(.headline, design: .serif))
+                            .foregroundColor(AppTheme.ink)
                         if ritualCounts.isEmpty {
                             Text("Rituals appear after you check in at a stop.")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(AppTheme.inkMuted)
                         } else {
                             Chart(ritualCounts) { item in
                                 BarMark(
@@ -77,18 +84,21 @@ struct PlacesView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Places you have landed")
                             .font(.system(.headline, design: .serif))
+                            .foregroundColor(AppTheme.ink)
                         if store.distinctStopNames.isEmpty {
                             Text("Walk a path to collect stop names.")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(AppTheme.inkMuted)
                         } else {
                             ForEach(store.distinctStopNames, id: \.self) { name in
                                 HStack {
                                     TrailBlaze(size: 9)
                                     Text(name)
+                                        .font(.body)
+                                        .foregroundColor(AppTheme.ink)
                                     Spacer()
                                     Text("\(visitCount(name))")
-                                        .font(.caption.weight(.semibold))
-                                        .foregroundColor(AppTheme.primary)
+                                        .font(.subheadline.weight(.semibold))
+                                        .foregroundColor(AppTheme.accentInk)
                                 }
                                 .frame(minHeight: 36)
                             }
@@ -103,13 +113,14 @@ struct PlacesView: View {
         }
         .clearScrollBackground()
         .screenBackdrop("BgTrail")
+        .readableChrome()
         .navigationTitle("Places")
     }
 
     private var emptyHint: some View {
         Text("Finish a path to see landings by day.")
             .font(.subheadline)
-            .foregroundColor(.secondary)
+            .foregroundColor(AppTheme.inkMuted)
             .frame(maxWidth: .infinity, minHeight: 80, alignment: .leading)
     }
 
@@ -149,9 +160,10 @@ struct PlacesView: View {
                     .foregroundColor(AppTheme.primary)
                 Text(value)
                     .font(AppTheme.display(22))
+                    .foregroundColor(AppTheme.ink)
                 Text(title)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(.subheadline)
+                    .foregroundColor(AppTheme.inkMuted)
             }
             .frame(maxWidth: .infinity)
         }

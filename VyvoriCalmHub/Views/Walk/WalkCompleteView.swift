@@ -25,10 +25,11 @@ struct RouteCompleteView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Path complete")
                             .font(AppTheme.display(26))
+                            .foregroundColor(AppTheme.ink)
                         if let walk {
                             Text("\(walk.routeTitle) · \(walk.checkIns.count) landings")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(AppTheme.inkMuted)
                             PathMapTrail(
                                 titles: walk.checkIns.map { "\($0.stopName) · \($0.ritual.title)" },
                                 doneCount: walk.checkIns.count
@@ -41,17 +42,19 @@ struct RouteCompleteView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("A closing line (optional)")
                             .font(.system(.headline, design: .serif))
+                            .foregroundColor(AppTheme.ink)
                         TextEditor(text: $closing)
                             .frame(minHeight: 100)
                             .padding(8)
-                            .background(Color.white.opacity(0.55), in: AppTheme.stoneShape(0))
+                            .background(AppTheme.fieldFill, in: AppTheme.stoneShape(0))
                         ForEach(walk?.checkIns.filter { !$0.body.isEmpty } ?? []) { item in
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(item.stopName)
-                                    .font(.caption.weight(.semibold))
-                                    .foregroundColor(AppTheme.primary)
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundColor(AppTheme.accentInk)
                                 Text(item.body)
-                                    .font(.subheadline)
+                                    .font(.body)
+                                    .foregroundColor(AppTheme.ink)
                             }
                         }
                         PetalButton(title: "Save this path", systemImage: "leaf.fill") {
@@ -67,6 +70,7 @@ struct RouteCompleteView: View {
         }
         .clearScrollBackground()
         .screenBackdrop("BgTrail")
+        .readableChrome()
         .navigationTitle("Landed")
         .navigationBarBackButtonHidden(true)
         .onAppear { closing = walk?.closingLine ?? "" }

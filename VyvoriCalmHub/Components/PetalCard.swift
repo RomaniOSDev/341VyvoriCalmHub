@@ -58,20 +58,20 @@ struct TrailRow: View {
             TrailBlaze(size: 14)
             Image(systemName: systemImage)
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(AppTheme.primary)
+                .foregroundColor(AppTheme.accentInk)
                 .frame(width: 26)
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
                     .font(.system(.headline, design: .serif))
-                    .foregroundColor(.primary)
+                    .foregroundColor(AppTheme.ink)
                 Text(subtitle)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(.subheadline)
+                    .foregroundColor(AppTheme.inkMuted)
             }
             Spacer()
             Image(systemName: "arrow.forward")
                 .font(.caption.weight(.bold))
-                .foregroundColor(AppTheme.primary)
+                .foregroundColor(AppTheme.accentInk)
         }
         .padding(16)
         .background {
@@ -115,8 +115,8 @@ struct PathMapTrail: View {
                     }
                     .frame(width: 18)
                     Text(title)
-                        .font(.system(index == highlightIndex ? .headline : .subheadline, design: .serif))
-                        .foregroundColor(index < doneCount || index == highlightIndex ? .primary : .secondary)
+                        .font(.system(index == highlightIndex ? .headline : .body, design: .serif))
+                        .foregroundColor(index < doneCount || index == highlightIndex ? AppTheme.ink : AppTheme.inkMuted)
                         .padding(.top, 2)
                     Spacer(minLength: 0)
                 }

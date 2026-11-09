@@ -25,22 +25,18 @@ struct ContentView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Walk by stops")
                             .font(AppTheme.display(36))
-                            .foregroundColor(.white)
+                            .foregroundColor(AppTheme.ink)
                         Text(store.weeklySummary)
-                            .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.86))
+                            .font(.body)
+                            .foregroundColor(AppTheme.inkMuted)
                         if !store.focusStopName.isEmpty {
                             Text("Begin next with: \(store.focusStopName)")
-                                .font(.caption.weight(.semibold))
-                                .foregroundColor(.white.opacity(0.92))
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundColor(AppTheme.accentInk)
                         }
                     }
 
-                    HStack {
-                        Spacer()
-                        startControl
-                        Spacer()
-                    }
+                    startControl
 
                     if let route = store.preferredRoute {
                         PetalCard(cut: 1) {
@@ -60,8 +56,8 @@ struct ContentView: View {
                     trailLinks
                     if let walkError {
                         Text(walkError)
-                            .font(.caption)
-                            .foregroundColor(.red)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundColor(Color(red: 0.55, green: 0.08, blue: 0.08))
                     }
                 }
                 .padding(.horizontal, 18)
@@ -69,6 +65,7 @@ struct ContentView: View {
             }
             .clearScrollBackground()
             .screenBackdrop("BgTrail")
+            .readableChrome()
             .navigationTitle("Today")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -93,39 +90,55 @@ struct ContentView: View {
                     .environmentObject(store)
             }
         }
-        .tint(AppTheme.primary)
+        .tint(AppTheme.accentInk)
+        .preferredColorScheme(.light)
         .environmentObject(store)
     }
 
+    @ViewBuilder
     private var startControl: some View {
-        Button {
-            beginOrResume()
-        } label: {
-            ZStack {
-                RippleRings(count: 4, base: 126)
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(AppTheme.trail)
-                    .frame(width: 118, height: 118)
-                    .rotationEffect(.degrees(45))
-                    .shadow(color: AppTheme.primary.opacity(0.5), radius: 16, y: 8)
-                VStack(spacing: 4) {
-                    Image(systemName: store.hasResumableWalk ? "arrow.uturn.left" : "figure.walk")
-                        .font(.system(size: 30, weight: .medium))
-                    Text(store.hasResumableWalk ? "Continue" : "Walk path")
-                        .font(.system(.headline, design: .serif))
-                    if let active = store.activeWalk, let stop = active.nextStop {
-                        Text("Stop \(active.currentStopIndex + 1) · \(stop.trimmedName)")
-                            .font(.caption)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 16)
-                    }
+        if store.hasResumableWalk {
+            VStack(spacing: 8) {
+                PetalButton(title: "Continue", systemImage: "arrow.uturn.left") {
+                    beginOrResume()
                 }
-                .foregroundColor(.white)
+                .accessibilityIdentifier("start_walk")
+                if let active = store.activeWalk, let stop = active.nextStop {
+                    Text("Stop \(active.currentStopIndex + 1) · \(stop.trimmedName)")
+                        .font(.subheadline)
+                        .foregroundColor(AppTheme.inkMuted)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                }
             }
-            .frame(width: 230, height: 230)
+        } else {
+            HStack {
+                Spacer()
+                Button {
+                    beginOrResume()
+                } label: {
+                    ZStack {
+                        RippleRings(count: 3, base: 96)
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .fill(AppTheme.trail)
+                            .frame(width: 96, height: 96)
+                            .rotationEffect(.degrees(45))
+                            .shadow(color: AppTheme.primary.opacity(0.5), radius: 12, y: 6)
+                        VStack(spacing: 4) {
+                            Image(systemName: "figure.walk")
+                                .font(.system(size: 26, weight: .medium))
+                            Text("Walk path")
+                                .font(.system(.headline, design: .serif))
+                        }
+                        .foregroundColor(.white)
+                    }
+                    .frame(width: 168, height: 168)
+                }
+                .buttonStyle(FootfallPressStyle())
+                .accessibilityIdentifier("start_walk")
+                Spacer()
+            }
         }
-        .buttonStyle(FootfallPressStyle())
-        .accessibilityIdentifier("start_walk")
     }
 
     private var routePicker: some View {
@@ -136,14 +149,15 @@ struct ContentView: View {
                         store.selectRoute(route.id)
                     } label: {
                         Text(route.trimmedTitle.isEmpty ? "Untitled" : route.trimmedTitle)
-                            .font(.caption.weight(.semibold))
+                            .font(.subheadline.weight(.semibold))
                             .padding(.horizontal, 12)
                             .padding(.vertical, 10)
                             .background(
                                 AppTheme.stoneShape(0)
-                                    .fill(store.selectedRouteId == route.id ? AppTheme.primary.opacity(0.28) : AppTheme.surface.opacity(0.85))
+                                    .fill(store.selectedRouteId == route.id ? AppTheme.card : AppTheme.card.opacity(0.92))
+                                    .overlay(AppTheme.stoneShape(0).stroke(store.selectedRouteId == route.id ? AppTheme.accentInk : AppTheme.ink.opacity(0.18), lineWidth: 1.2))
                             )
-                            .foregroundColor(AppTheme.primary)
+                            .foregroundColor(AppTheme.ink)
                     }
                     .frame(minHeight: 44)
                 }

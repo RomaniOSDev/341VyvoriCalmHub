@@ -21,9 +21,10 @@ struct CheckInNotesView: View {
                                 .foregroundColor(AppTheme.primary)
                             Text("Notes live on the stops")
                                 .font(.system(.headline, design: .serif))
+                                .foregroundColor(AppTheme.ink)
                             Text("Sounds, ground textures, and lines you leave while walking a path.")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(AppTheme.inkMuted)
                                 .multilineTextAlignment(.center)
                         }
                         .frame(maxWidth: .infinity)
@@ -33,13 +34,14 @@ struct CheckInNotesView: View {
                         PetalCard {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text(item.stopName)
-                                    .font(.caption.weight(.semibold))
-                                    .foregroundColor(AppTheme.primary)
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundColor(AppTheme.accentInk)
                                 Text(item.body)
-                                    .foregroundColor(.primary)
+                                    .font(.body)
+                                    .foregroundColor(AppTheme.ink)
                                 Text("\(item.ritual.title) · \(item.completedAt.formatted(date: .abbreviated, time: .shortened))")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(AppTheme.inkMuted)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
@@ -52,6 +54,7 @@ struct CheckInNotesView: View {
         }
         .clearScrollBackground()
         .screenBackdrop("BgTrail")
+        .readableChrome()
         .navigationTitle("Stop notes")
     }
 }

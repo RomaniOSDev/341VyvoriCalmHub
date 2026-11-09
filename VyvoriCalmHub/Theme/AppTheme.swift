@@ -6,9 +6,23 @@ enum AppTheme {
     static let primary = Color("AppPrimary")
     static let accent = Color("AppAccent")
 
+    /// Dark brown for titles and body on coral or cream.
+    static let ink = Color(red: 0.16, green: 0.08, blue: 0.06)
+    /// Muted brown for secondary copy — readable on cream (not system gray).
+    static let inkMuted = Color(red: 0.36, green: 0.20, blue: 0.16)
+    /// Deeper magenta for small labels on cream cards.
+    static let accentInk = Color(red: 0.58, green: 0.05, blue: 0.46)
+    /// Opaque warm cream so body text meets contrast on cards.
+    static let card = Color(red: 1.0, green: 0.965, blue: 0.94)
+    static let fieldFill = Color(red: 1.0, green: 0.99, blue: 0.97)
+
     static var trail: LinearGradient {
         LinearGradient(
-            colors: [primary, accent.opacity(0.85), primary.opacity(0.7)],
+            colors: [
+                Color(red: 0.62, green: 0.08, blue: 0.50),
+                Color(red: 0.78, green: 0.14, blue: 0.62),
+                Color(red: 0.58, green: 0.06, blue: 0.46)
+            ],
             startPoint: .top,
             endPoint: .bottom
         )
@@ -16,7 +30,11 @@ enum AppTheme {
 
     static var stone: LinearGradient {
         LinearGradient(
-            colors: [surface.opacity(0.97), background.opacity(0.55), surface.opacity(0.9)],
+            colors: [
+                card,
+                Color(red: 1.0, green: 0.94, blue: 0.90),
+                card
+            ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )

@@ -16,8 +16,9 @@ struct WeeklyReviewView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Most visited landing")
                             .font(.system(.headline, design: .serif))
+                            .foregroundColor(AppTheme.ink)
                         Text(favoriteStop ?? "Finish a path this week to see this.")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(AppTheme.inkMuted)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -25,9 +26,10 @@ struct WeeklyReviewView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("This week’s trails")
                             .font(.system(.headline, design: .serif))
+                            .foregroundColor(AppTheme.ink)
                         if weekWalks.isEmpty {
                             Text("Walk a route of stops, then return here on Sunday.")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(AppTheme.inkMuted)
                         } else {
                             ForEach(weekWalks) { walk in
                                 PathMapTrail(
@@ -44,9 +46,10 @@ struct WeeklyReviewView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Which stop will you begin with next?")
                             .font(.system(.headline, design: .serif))
+                            .foregroundColor(AppTheme.ink)
                         if weekStops.isEmpty {
                             Text("Check in at stops this week to choose one.")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(AppTheme.inkMuted)
                         } else {
                             Picker("Next stop", selection: $selectedStop) {
                                 ForEach(weekStops, id: \.self) { name in
@@ -59,7 +62,7 @@ struct WeeklyReviewView: View {
                         if saved {
                             Text("Saved as next beginning.")
                                 .font(.caption)
-                                .foregroundColor(AppTheme.primary)
+                                .foregroundColor(AppTheme.accentInk)
                         }
                         PetalButton(title: "Begin here next week", systemImage: "bookmark.fill") {
                             store.saveFocusStop(selectedStop)
@@ -70,7 +73,8 @@ struct WeeklyReviewView: View {
                         Button("Close for this week") {
                             store.markReviewSeen()
                         }
-                        .foregroundColor(AppTheme.primary)
+                        .font(.body.weight(.semibold))
+                        .foregroundColor(AppTheme.ink)
                         .frame(maxWidth: .infinity, minHeight: 44)
                     }
                 }
@@ -81,6 +85,7 @@ struct WeeklyReviewView: View {
         }
         .clearScrollBackground()
         .screenBackdrop("BgTrail")
+        .readableChrome()
         .navigationTitle("Sunday stops")
         .onAppear {
             selectedStop = store.focusStopName.isEmpty ? (weekStops.first ?? "") : store.focusStopName
@@ -116,9 +121,10 @@ struct WeeklyReviewView: View {
                     .foregroundColor(AppTheme.primary)
                 Text(value)
                     .font(AppTheme.display(22))
+                    .foregroundColor(AppTheme.ink)
                 Text(title)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(.subheadline)
+                    .foregroundColor(AppTheme.inkMuted)
             }
             .frame(maxWidth: .infinity)
         }

@@ -22,10 +22,12 @@ struct RouteEditorView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Path name")
                             .font(.system(.headline, design: .serif))
+                            .foregroundColor(AppTheme.ink)
                         TextField("Evening loop, lamp to lamp…", text: $title)
                             .textFieldStyle(.roundedBorder)
                         Text("Why this path")
                             .font(.system(.headline, design: .serif))
+                            .foregroundColor(AppTheme.ink)
                         TextField("Four landings after dusk", text: $summary, axis: .vertical)
                             .textFieldStyle(.roundedBorder)
                             .lineLimit(2...4)
@@ -39,18 +41,18 @@ struct RouteEditorView: View {
                 HStack(spacing: 12) {
                     Button("Add stop") { addStop() }
                         .frame(maxWidth: .infinity, minHeight: 44)
-                        .foregroundColor(AppTheme.primary)
+                        .foregroundColor(AppTheme.ink)
                         .disabled(stops.count >= 6)
                     Button("Remove last") { removeLast() }
                         .frame(maxWidth: .infinity, minHeight: 44)
-                        .foregroundColor(AppTheme.primary)
+                        .foregroundColor(AppTheme.ink)
                         .disabled(stops.count <= 4)
                 }
 
                 if let error {
                     Text(error)
-                        .font(.caption)
-                        .foregroundColor(.red)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(Color(red: 0.55, green: 0.08, blue: 0.08))
                 }
 
                 PetalButton(title: "Save path", systemImage: "checkmark") {
@@ -63,7 +65,7 @@ struct RouteEditorView: View {
                         dismiss()
                     }
                 }
-                .foregroundColor(AppTheme.primary)
+                .foregroundColor(AppTheme.ink)
                 .frame(maxWidth: .infinity, minHeight: 44)
                 Button("Delete path", role: .destructive) { confirmDelete = true }
                     .frame(maxWidth: .infinity, minHeight: 44)
@@ -74,6 +76,7 @@ struct RouteEditorView: View {
         }
         .clearScrollBackground()
         .screenBackdrop("BgTrail")
+        .readableChrome()
         .navigationTitle("Edit path")
         .onAppear { hydrate() }
         .alert("Delete this path?", isPresented: $confirmDelete) {
@@ -89,8 +92,8 @@ struct RouteEditorView: View {
         PetalCard(cut: index) {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Stop \(index + 1)")
-                    .font(.caption.weight(.semibold))
-                    .foregroundColor(AppTheme.primary)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(AppTheme.accentInk)
                 TextField("Bench, oak, corner, stoop…", text: binding(index, \.name))
                     .textFieldStyle(.roundedBorder)
                 Picker("Ritual", selection: binding(index, \.ritual)) {

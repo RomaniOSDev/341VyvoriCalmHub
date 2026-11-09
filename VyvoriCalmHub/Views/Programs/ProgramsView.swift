@@ -11,10 +11,12 @@ struct RoutesListView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 14) {
-                Text("A path is a sequence of outdoor landings you already know — a doorstep, a lamp, a bench. You walk it by arriving at each stop and doing its ritual.")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                PetalCard {
+                    Text("A path is a sequence of outdoor landings you already know — a doorstep, a lamp, a bench. You walk it by arriving at each stop and doing its ritual.")
+                        .font(.body)
+                        .foregroundColor(AppTheme.inkMuted)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
 
                 ForEach(store.routes) { route in
                     NavigationLink {
@@ -24,13 +26,13 @@ struct RoutesListView: View {
                             VStack(alignment: .leading, spacing: 10) {
                                 Text(route.trimmedTitle.isEmpty ? "Untitled path" : route.trimmedTitle)
                                     .font(.system(.title3, design: .serif))
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(AppTheme.ink)
                                 Text(route.summary)
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    .font(.body)
+                                    .foregroundColor(AppTheme.inkMuted)
                                 Text("\(route.stops.count) stops · \(route.isWalkable ? "Ready to walk" : "Needs named stops")")
-                                    .font(.caption.weight(.semibold))
-                                    .foregroundColor(AppTheme.primary)
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundColor(AppTheme.accentInk)
                                 PathMapTrail(
                                     titles: route.stops.map { $0.trimmedName.isEmpty ? "Unnamed" : $0.trimmedName }
                                 )
@@ -59,6 +61,7 @@ struct RoutesListView: View {
         }
         .clearScrollBackground()
         .screenBackdrop("BgTrail")
+        .readableChrome()
         .navigationTitle("Paths")
         .navigationDestination(isPresented: Binding(
             get: { editNav != nil },

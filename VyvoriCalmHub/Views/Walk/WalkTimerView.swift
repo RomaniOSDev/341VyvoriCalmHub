@@ -29,7 +29,8 @@ struct RouteWalkView: View {
                 walkBody(walk: walk, stop: stop)
             } else {
                 Text("This path is no longer available.")
-                    .foregroundColor(.white)
+                    .font(.body.weight(.semibold))
+                    .foregroundColor(AppTheme.ink)
                     .screenBackdrop("BgTrail")
             }
         }
@@ -53,8 +54,8 @@ struct RouteWalkView: View {
                     .overlay(AppTheme.stoneShape(2).stroke(AppTheme.primary.opacity(0.3), lineWidth: 1.2))
 
                 Text("Stop \(walk.currentStopIndex + 1) of \(walk.stops.count)")
-                    .font(.caption.weight(.semibold))
-                    .foregroundColor(.white.opacity(0.9))
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(AppTheme.ink)
 
                 ArriveMarkerView()
 
@@ -62,12 +63,13 @@ struct RouteWalkView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         Text(stop.trimmedName)
                             .font(AppTheme.display(26))
+                            .foregroundColor(AppTheme.ink)
                         Text(stop.ritual.title)
                             .font(.subheadline.weight(.semibold))
-                            .foregroundColor(AppTheme.primary)
+                            .foregroundColor(AppTheme.accentInk)
                         Text(stop.cue.isEmpty ? stop.ritual.instruction : stop.cue)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .font(.body)
+                            .foregroundColor(AppTheme.inkMuted)
                         PathMapTrail(
                             titles: walk.stops.map(\.trimmedName),
                             doneCount: walk.checkIns.count,
@@ -80,8 +82,8 @@ struct RouteWalkView: View {
 
                 if let error {
                     Text(error)
-                        .font(.caption)
-                        .foregroundColor(.red)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(Color(red: 0.55, green: 0.08, blue: 0.08))
                 }
 
                 PetalButton(
@@ -94,7 +96,8 @@ struct RouteWalkView: View {
                     store.persistWalkProgress(walkId: walk.id, note: note, standRemaining: remaining)
                     sessionPresented = false
                 }
-                .foregroundColor(AppTheme.primary)
+                .font(.body.weight(.semibold))
+                .foregroundColor(AppTheme.ink)
                 .frame(maxWidth: .infinity, minHeight: 44)
             }
             .padding(.horizontal, 20)
@@ -103,6 +106,7 @@ struct RouteWalkView: View {
         }
         .clearScrollBackground()
         .screenBackdrop("BgTrail")
+        .readableChrome()
         .keepScreenAwake()
         .onReceive(ticker) { _ in tickStandStill() }
         .onDisappear {
@@ -125,34 +129,38 @@ struct RouteWalkView: View {
                 case .standStill:
                     Text(standFinished ? "You can check in." : "Stand with this stop.")
                         .font(.system(.headline, design: .serif))
+                        .foregroundColor(AppTheme.ink)
                     ZStack {
                         RippleRings(count: 3, base: 110)
                         Text(String(format: "%02d:%02d", remaining / 60, remaining % 60))
                             .font(.system(size: 44, weight: .medium, design: .rounded))
                             .monospacedDigit()
-                            .foregroundColor(AppTheme.primary)
+                            .foregroundColor(AppTheme.ink)
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 160)
                 case .nameSound:
                     Text("The farthest sound")
                         .font(.system(.headline, design: .serif))
+                        .foregroundColor(AppTheme.ink)
                     TextField("A bus, a bird, a door…", text: $note, axis: .vertical)
                         .textFieldStyle(.roundedBorder)
                         .lineLimit(2...4)
                 case .groundTexture:
                     Text("What the ground is doing")
                         .font(.system(.headline, design: .serif))
+                        .foregroundColor(AppTheme.ink)
                     TextField("Wet leaf, hairline crack, pale dust…", text: $note, axis: .vertical)
                         .textFieldStyle(.roundedBorder)
                         .lineLimit(2...4)
                 case .shortNote:
                     Text("A line to leave here")
                         .font(.system(.headline, design: .serif))
+                        .foregroundColor(AppTheme.ink)
                     TextEditor(text: $note)
                         .frame(minHeight: 120)
                         .padding(8)
-                        .background(Color.white.opacity(0.55), in: AppTheme.stoneShape(0))
+                        .background(AppTheme.fieldFill, in: AppTheme.stoneShape(0))
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
